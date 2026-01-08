@@ -228,7 +228,7 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary via-accent to-primary">
+      <section className="py-20 bg-primary">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -251,7 +251,7 @@ const About = () => {
                 </Button>
               </Link>
               <Link to="/contact">
-                <Button size="lg" variant="outline" className="text-lg px-10 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+                <Button size="lg" variant="outline" className="text-lg px-10 border-primary-foreground text-primary hover:bg-primary-foreground hover:text-primary">
                   Contact Us
                 </Button>
               </Link>
