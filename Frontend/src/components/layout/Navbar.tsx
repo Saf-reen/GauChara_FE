@@ -46,16 +46,17 @@ const Navbar = () => {
       <div className="w-full px-4">
         <nav className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">G</span>
+          <Link to="/" className="flex items-center gap-4">
+            <div className="  rounded-full flex items-center justify-center">
+              {/* <span className="text-primary-foreground font-bold text-xl">G</span> */}
+              <img src="/logo.webp" alt="logo" className='h-16 w-auto' />
             </div>
-            <span
+            {/* <span
               className={`text-2xl font-serif font-bold transition-colors ${isScrolled ? 'text-foreground' : 'text-white'
                 }`}
             >
               GauChara
-            </span>
+            </span> */}
           </Link>
 
           {/* Desktop Navigation */}

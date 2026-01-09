@@ -184,7 +184,7 @@ const Services = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">Email Us</p>
-                                        <p className="font-bold">info@gauchara.org</p>
+                                        <p className="font-bold">info@gauchara.com</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -193,7 +193,7 @@ const Services = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">Call Us</p>
-                                        <p className="font-bold">+91 98765 43210</p>
+                                        <p className="font-bold">+91 9052590515</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -202,7 +202,7 @@ const Services = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">Visit Us</p>
-                                        <p className="font-bold">Vrindavan, Uttar Pradesh, India</p>
+                                        <p className="font-bold">4-1-2/2 Ramkoti Hyderabad- 500001</p>
                                     </div>
                                 </div>
                             </div>

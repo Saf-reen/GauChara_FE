@@ -218,17 +218,17 @@ const Contact = () => {
                   {
                     icon: MapPin,
                     title: "Our Address",
-                    content: "Savadia Foundation\nGaushala Road, Ahmedabad\nGujarat 380001, India",
+                    content: "4-1-2/2 Ramkoti Hyderabad- 500001",
                   },
                   {
                     icon: Phone,
                     title: "Phone Number",
-                    content: "+91 123 456 7890\n+91 987 654 3210",
+                    content: "+91 9052590515",
                   },
                   {
                     icon: Mail,
                     title: "Email Address",
-                    content: "info@gauchara.com\nsupport@gauchara.com",
+                    content: "info@gauchara.com",
                   },
                   {
                     icon: Clock,
@@ -253,15 +253,19 @@ const Contact = () => {
                 ))}
               </div>
 
-              {/* Map Placeholder */}
-              <div className="mt-8 rounded-2xl overflow-hidden border border-border">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                    <p className="text-muted-foreground">Interactive Map</p>
-                    <p className="text-sm text-muted-foreground">Gujarat, India</p>
-                  </div>
-                </div>
+              {/* Map Section */}
+              <div className="mt-8 rounded-2xl overflow-hidden border border-border shadow-lg">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.383321468468!2d78.48291977501026!3d17.393382483494783!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daa3ffffff%3A0x4162d367e5026802!2s4%2C%201%2F2%2C%20Ramkoti%2C%20King%20Koti%2C%20Circle%2028%2C%20Hyderabad%2C%20Telangana%20500029!5e0!3m2!1sen!2sin!4v1767937857804!5m2!1sen!2sin"
+                  width="100%"
+                  height="400"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="GauChara Location"
+                  className="w-full grayscale hover:grayscale-0 transition-all duration-500"
+                ></iframe>
               </div>
             </motion.div>
           </div>

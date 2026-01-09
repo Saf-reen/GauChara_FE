@@ -9,15 +9,15 @@ const Hero = () => {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/cow_image.jpg')`,
+          backgroundImage: `url('/hero-9.jpg')`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
       </div>
 
       {/* Content */}
       <div className="container-custom relative z-10 pt-20">
-        <div className="max-w-2xl">
+        <div className="max-w-2xl ">
           <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full 
                          text-sm font-semibold mb-6 animate-fade-in">
             Nourishing Our Sacred Cows
@@ -26,7 +26,7 @@ const Hero = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 
                        leading-tight animate-slide-up font-serif">
             GauChara:
-            <span className="text-primary block mt-2">A Sacred Initiative for Gaumata</span>
+            <span className="text-primary block mt-2 p-2">A Sacred Initiative for Gaumata</span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/80 mb-8 leading-relaxed 

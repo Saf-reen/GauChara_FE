@@ -28,7 +28,7 @@ const About = () => {
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                src="/hero-1.webp"
                 alt="Sacred cow in Gaushala"
                 className="w-full h-[500px] object-cover"
               />

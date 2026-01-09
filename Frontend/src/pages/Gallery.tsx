@@ -2,23 +2,20 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import heroCow from "@/assets/hero-cow.jpg";
-import cowFeeding from "@/assets/cow-feeding.jpg";
-import cowHerd from "@/assets/cow-herd.jpg";
-import silageFeed from "@/assets/silage-feed.jpg";
 
 const galleryImages = [
-  { src: heroCow, alt: "Majestic Bos Indicus cow at golden hour", category: "Cows" },
-  { src: cowFeeding, alt: "Cow being fed fresh green grass", category: "Feeding" },
-  { src: cowHerd, alt: "Herd of cows grazing in pasture", category: "Cows" },
-  { src: silageFeed, alt: "Nutritious silage for cattle feed", category: "Feed" },
-  { src: cowHerd, alt: "Morning mist over the gaushala", category: "Gaushala" },
-  { src: cowFeeding, alt: "Caring hands nurturing Gaumata", category: "Care" },
-  { src: heroCow, alt: "Sacred cow with traditional decorations", category: "Events" },
-  { src: silageFeed, alt: "Fresh fodder preparation", category: "Feed" },
+  { src: '/1.JPG', alt: "Morning mist over the gaushala", category: "Gaushala" },
+  { src: '/2.JPG', alt: "Morning mist over the gaushala", category: "Gaushala" },
+  { src: '/3.JPG', alt: "Herd of cows grazing in pasture", category: "Cows" },
+  { src: '/4.JPG', alt: "Nutritious silage for cattle feed", category: "Cows" },
+  { src: '/5.JPG', alt: "Morning mist over the gaushala", category: "Gaushala" },
+  { src: '/6.JPG', alt: "Caring hands nurturing Gaumata", category: "Care" },
+  { src: '/7.JPG', alt: "Sacred cow with traditional decorations", category: "Events" },
+  { src: '/8.JPG', alt: "Caring hands nurturing Gaumata", category: "Care" },
+  { src: '/9.JPG', alt: "Nutritious silage for cattle feed", category: "Feed" },
 ];
 
-const categories = ["All", "Cows", "Feeding", "Feed", "Gaushala", "Care", "Events"];
+const categories = ["All", "Cows", "Feed", "Gaushala", "Care", "Events"];
 
 import PageHero from "@/components/layout/PageHero";
 
@@ -54,8 +51,8 @@ const Gallery = () => {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-6 py-2 rounded-full font-medium transition-all ${selectedCategory === category
-                    ? "bg-gradient-to-r from-primary to-accent text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-gradient-to-r from-primary to-accent text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
               >
                 {category}

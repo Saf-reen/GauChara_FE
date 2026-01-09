@@ -79,7 +79,7 @@ const ImpactCounters = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`,
+          backgroundImage: `url('/hero-5.png')`,
         }}
       >
         <div className="absolute inset-0 bg-secondary/90" />
