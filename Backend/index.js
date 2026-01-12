@@ -28,13 +28,37 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 
 // CORS configuration
-app.use(cors({
-  // origin: process.env.FRONTEND_URL || 'http://localhost:8080',
-  origin: process.env.FRONTEND_URL || 'https://gauchara-fe.onrender.com',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// app.use(cors({
+//   // origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+//   origin: process.env.FRONTEND_URL || 'https://gauchara-fe.onrender.com',
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
+
+const allowedOrigins = [
+  "https://gauchara-fe.onrender.com",
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
