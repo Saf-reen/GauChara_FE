@@ -1,3 +1,5 @@
+process.env.TRUST_PROXY = "1";
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -17,6 +19,7 @@ const testimonialRoutes = require('./src/routes/testimonial');
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1);
 app.disable('etag')
 
 const PORT = process.env.PORT || 5000;
