@@ -27,7 +27,7 @@ app.use(helmet());
 // CORS configuration
 app.use(cors({
   // origin: process.env.FRONTEND_URL || 'http://localhost:8080',
-  origin: process.env.FRONTEND_URL || 'https://gauchara-frontend.onrender.com',
+  origin: process.env.FRONTEND_URL || 'https://gauchara-fe.onrender.com',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
