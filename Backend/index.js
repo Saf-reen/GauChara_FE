@@ -26,7 +26,8 @@ app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+  // origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+  origin: process.env.FRONTEND_URL || 'https://gauchara-frontend.onrender.com',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -82,7 +83,9 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🐄 GauChara Backend running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+  // console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📍 Health check: /api/health`);
+
 });
 
 module.exports = app;
