@@ -22,7 +22,7 @@ const Navbar = () => {
   }, [location]);
 
   const navLinks = [
-    { name: 'Home', path: '/' },
+    // { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Blog', path: '/blog' },
@@ -49,7 +49,7 @@ const Navbar = () => {
           <Link to="/" className="flex items-center gap-4">
             <div className="  rounded-full flex items-center justify-center">
               {/* <span className="text-primary-foreground font-bold text-xl">G</span> */}
-              <img src="/logo.webp" alt="logo" className='h-16 w-auto' />
+              <img src="/logo.png" alt="logo" className='h-24 w-auto' />
             </div>
             {/* <span
               className={`text-2xl font-serif font-bold transition-colors ${isScrolled ? 'text-foreground' : 'text-white'

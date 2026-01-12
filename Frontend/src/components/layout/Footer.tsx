@@ -46,7 +46,7 @@ const Footer = () => {
             <div className="flex items-center gap-2 mb-6">
               <div className="w-auto h-16 rounded-full flex items-center justify-center">
                 {/* <span className="text-primary-foreground font-bold text-xl">G</span> */}
-                <img src="/logo.webp" alt="logo" className='w-full h-full object-contain' />
+                <img src="/logo.png" alt="logo" className='w-full h-full object-contain' />
               </div>
               {/* <span className="text-2xl font-serif font-bold text-white">
                 Gauchara

@@ -23,7 +23,27 @@ const Chatbot = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [quickActions, setQuickActions] = useState<string[]>([
+    'How can I donate?',
+    'Tell me about Gauchara',
+    'What causes do you support?',
+  ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchQuickReplies = async () => {
+      try {
+        const response = await chatbotApi.getQuickReplies();
+        if (response.data.success && response.data.quickReplies) {
+          setQuickActions(response.data.quickReplies);
+        }
+      } catch (error) {
+        console.error('Failed to fetch quick replies:', error);
+      }
+    };
+
+    fetchQuickReplies();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,12 +53,12 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSendMessageWithContent = async (content: string) => {
+    if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: content,
       isBot: false,
       timestamp: new Date(),
     };
@@ -48,20 +68,18 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      // Try to call the backend API
-      const response = await chatbotApi.sendMessage(inputValue);
+      const response = await chatbotApi.sendMessage(content);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response.data.message,
+        content: response.data.response || response.data.message,
         isBot: true,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      // Fallback response when backend is not available
-      const fallbackResponses = getFallbackResponse(inputValue);
+      const fallbackResponses = getFallbackResponse(content);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -75,6 +93,8 @@ const Chatbot = () => {
       setIsLoading(false);
     }
   };
+
+  const handleSendMessage = () => handleSendMessageWithContent(inputValue);
 
   const getFallbackResponse = (query: string): string => {
     const lowerQuery = query.toLowerCase();
@@ -102,11 +122,7 @@ const Chatbot = () => {
     return "Thank you for your question! For more detailed information, please visit our About page or Contact us directly. Our team is always happy to help!";
   };
 
-  const quickActions = [
-    'How can I donate?',
-    'Tell me about Gauchara',
-    'What causes do you support?',
-  ];
+
 
   return (
     <>
@@ -197,7 +213,7 @@ const Chatbot = () => {
             {quickActions.map((action) => (
               <button
                 key={action}
-                onClick={() => setInputValue(action)}
+                onClick={() => handleSendMessageWithContent(action)}
                 className="text-xs px-3 py-1.5 bg-muted rounded-full hover:bg-primary 
                          hover:text-primary-foreground transition-colors"
               >

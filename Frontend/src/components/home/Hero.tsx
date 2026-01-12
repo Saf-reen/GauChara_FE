@@ -12,7 +12,7 @@ const Hero = () => {
           backgroundImage: `url('/hero-9.jpg')`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/10" />
       </div>
 
       {/* Content */}

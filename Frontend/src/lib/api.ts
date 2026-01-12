@@ -6,38 +6,39 @@ export const authApi = {
   login: (data: Record<string, unknown>) => axiosInstance.post('/login/', data),
   register: (data: Record<string, unknown>) => axiosInstance.post('/register/', data),
   resetPassword: (data: Record<string, unknown>) => axiosInstance.post('/reset-password/', data),
+  adminLogin: (data: Record<string, unknown>) => axiosInstance.post('/admin/login', data),
 };
 
 // Blog APIs
 export const blogApi = {
-  getAll: () => axiosInstance.get<Blog[]>('/blogs'),
-  getBySlug: (slug: string) => axiosInstance.get<Blog>(`/blogs/${slug}`),
-  create: (data: Partial<Blog>) => axiosInstance.post<Blog>('/blogs', data),
-  update: (id: string, data: Partial<Blog>) => axiosInstance.put<Blog>(`/blogs/${id}`, data),
-  delete: (id: string) => axiosInstance.delete<void>(`/blogs/${id}`),
+  getAll: () => axiosInstance.get('/blogs'),
+  getBySlug: (slug: string) => axiosInstance.get(`/blogs/${slug}`),
+  create: (data: Record<string, unknown>) => axiosInstance.post('/blogs', data),
+  update: (id: string, data: Record<string, unknown>) => axiosInstance.put(`/blogs/${id}`, data),
+  delete: (id: string) => axiosInstance.delete(`/blogs/${id}`),
 };
 
 // Cause APIs
 export const causeApi = {
-  getAll: () => axiosInstance.get<Cause[]>('/causes'),
-  getById: (id: string) => axiosInstance.get<Cause>(`/causes/${id}`),
-  create: (data: Partial<Cause>) => axiosInstance.post<Cause>('/causes', data),
-  update: (id: string, data: Partial<Cause>) => axiosInstance.put<Cause>(`/causes/${id}`, data),
-  delete: (id: string) => axiosInstance.delete<void>(`/causes/${id}`),
+  getAll: () => axiosInstance.get('/causes'),
+  getById: (id: string) => axiosInstance.get(`/causes/${id}`),
+  create: (data: Record<string, unknown>) => axiosInstance.post('/causes', data),
+  update: (id: string, data: Record<string, unknown>) => axiosInstance.put(`/causes/${id}`, data),
+  delete: (id: string) => axiosInstance.delete(`/causes/${id}`),
 };
 
 // Testimonial APIs
 export const testimonialApi = {
-  getAll: () => axiosInstance.get<Testimonial[]>('/testimonials'),
-  create: (data: Partial<Testimonial>) => axiosInstance.post<Testimonial>('/testimonials', data),
-  update: (id: string, data: Partial<Testimonial>) => axiosInstance.put<Testimonial>(`/testimonials/${id}`, data),
-  delete: (id: string) => axiosInstance.delete<void>(`/testimonials/${id}`),
+  getAll: () => axiosInstance.get('/testimonials'),
+  create: (data: Record<string, unknown>) => axiosInstance.post('/testimonials', data),
+  update: (id: string, data: Record<string, unknown>) => axiosInstance.put(`/testimonials/${id}`, data),
+  delete: (id: string) => axiosInstance.delete(`/testimonials/${id}`),
 };
 
 // Donation APIs
 export const donationApi = {
-  create: (data: DonationData) => axiosInstance.post<DonationResponse>('/donations', data),
-  verifyPayPal: (orderId: string) => axiosInstance.post<PayPalVerification>('/donations/verify-paypal', { orderId }),
+  create: (data: Record<string, unknown>) => axiosInstance.post('/donations', data),
+  verifyPayPal: (orderId: string) => axiosInstance.post('/donations/verify-paypal', { orderId }),
   uploadProof: async (donationId: string, file: File) => {
     const formData = new FormData();
     formData.append('proof', file);
@@ -49,19 +50,20 @@ export const donationApi = {
       },
     });
   },
-  generateReference: () => axiosInstance.get<{ referenceId: string }>('/donations/generate-reference'),
+  generateReference: () => axiosInstance.get('/donations/generate-reference'),
   createPaymentIntent: (data: Record<string, unknown>) => axiosInstance.post('/donations/create-payment-intent', data),
   confirmDonation: (data: Record<string, unknown>) => axiosInstance.post('/donations/confirm', data),
 };
 
 // Contact API
 export const contactApi = {
-  submit: (data: ContactData) => axiosInstance.post<{ success: boolean; message: string }>('/contact', data),
+  submit: (data: Record<string, unknown>) => axiosInstance.post('/contact', data),
 };
 
 // Chatbot API
 export const chatbotApi = {
-  sendMessage: (message: string) => axiosInstance.post<ChatbotResponse>('/chatbot', { message }),
+  sendMessage: (message: string) => axiosInstance.post('/chat', { message }),
+  getQuickReplies: () => axiosInstance.get('/chat/quick-replies'),
 };
 
 // Type definitions

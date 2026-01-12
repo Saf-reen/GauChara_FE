@@ -1,48 +1,40 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-
-// Mock data - will be replaced with API data
-const mockTestimonials = [
-  {
-    id: '1',
-    name: 'Maria Gonzalez',
-    role: 'Community Leader',
-    content: 'Gauchara\'s education program changed my daughter\'s life. She went from having no access to school to being top of her class. We are forever grateful for their support.',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-    rating: 5,
-  },
-  {
-    id: '2',
-    name: 'James Kimura',
-    role: 'Volunteer',
-    content: 'Being a volunteer with Gauchara has been the most rewarding experience of my life. Seeing the direct impact of our work on families is truly inspiring.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-    rating: 5,
-  },
-  {
-    id: '3',
-    name: 'Priya Sharma',
-    role: 'Donor',
-    content: 'I\'ve donated to many organizations, but Gauchara stands out for their transparency and genuine impact. Every rupee is used effectively to help those in need.',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-    rating: 5,
-  },
-];
+import { ChevronLeft, ChevronRight, Quote, Loader2 } from 'lucide-react';
+import { testimonialApi } from '@/lib/api';
+import { toast } from 'sonner';
 
 const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await testimonialApi.getAll();
+        setTestimonials(response.data);
+      } catch (error) {
+        console.error("Failed to fetch testimonials:", error);
+        toast.error("Failed to load testimonials");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
   const nextSlide = () => {
-    if (isAnimating) return;
+    if (isAnimating || testimonials.length === 0) return;
     setIsAnimating(true);
-    setCurrentIndex((prev) => (prev + 1) % mockTestimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
 
   const prevSlide = () => {
-    if (isAnimating) return;
+    if (isAnimating || testimonials.length === 0) return;
     setIsAnimating(true);
-    setCurrentIndex((prev) => (prev - 1 + mockTestimonials.length) % mockTestimonials.length);
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   useEffect(() => {
@@ -51,9 +43,25 @@ const Testimonials = () => {
   }, [currentIndex]);
 
   useEffect(() => {
-    const autoPlay = setInterval(nextSlide, 5000);
-    return () => clearInterval(autoPlay);
-  }, []);
+    if (testimonials.length > 0) {
+      const autoPlay = setInterval(nextSlide, 5000);
+      return () => clearInterval(autoPlay);
+    }
+  }, [testimonials.length, isAnimating]); // Added isAnimating to dependency to pause on manual interaction if needed, but simple interval is fine.
+
+  if (isLoading) {
+    return (
+      <section className="section-padding bg-muted/30">
+        <div className="container-custom flex justify-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </div>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return null; // Or render a "No testimonials" message
+  }
 
   return (
     <section className="section-padding bg-muted/30">
@@ -81,17 +89,16 @@ const Testimonials = () => {
             </div>
 
             {/* Testimonial */}
-            <div 
-              className={`transition-all duration-500 ${
-                isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-              }`}
+            <div
+              className={`transition-all duration-500 ${isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+                }`}
             >
               <div className="flex flex-col md:flex-row items-center gap-8">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                   <img
-                    src={mockTestimonials[currentIndex].image}
-                    alt={mockTestimonials[currentIndex].name}
+                    src={testimonials[currentIndex].image}
+                    alt={testimonials[currentIndex].name}
                     className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover 
                              border-4 border-primary shadow-lg"
                   />
@@ -101,7 +108,7 @@ const Testimonials = () => {
                 <div className="text-center md:text-left">
                   {/* Stars */}
                   <div className="flex justify-center md:justify-start gap-1 mb-4">
-                    {[...Array(mockTestimonials[currentIndex].rating)].map((_, i) => (
+                    {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
                       <svg
                         key={i}
                         className="w-5 h-5 text-accent fill-current"
@@ -114,15 +121,15 @@ const Testimonials = () => {
 
                   <blockquote className="text-lg md:text-xl text-card-foreground mb-6 
                                        leading-relaxed italic">
-                    "{mockTestimonials[currentIndex].content}"
+                    "{testimonials[currentIndex].content}"
                   </blockquote>
 
                   <div>
                     <h4 className="font-bold text-foreground text-lg">
-                      {mockTestimonials[currentIndex].name}
+                      {testimonials[currentIndex].name}
                     </h4>
                     <p className="text-muted-foreground">
-                      {mockTestimonials[currentIndex].role}
+                      {testimonials[currentIndex].role}
                     </p>
                   </div>
                 </div>
@@ -153,15 +160,14 @@ const Testimonials = () => {
 
             {/* Dots */}
             <div className="flex justify-center gap-2 mt-6">
-              {mockTestimonials.map((_, index) => (
+              {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    index === currentIndex
-                      ? 'bg-primary w-8'
-                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                  }`}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${index === currentIndex
+                    ? 'bg-primary w-8'
+                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}
