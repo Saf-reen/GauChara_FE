@@ -16,7 +16,7 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="container-custom relative z-10 pt-20">
+      <div className="container-custom relative z-10 pt-32">
         <div className="max-w-2xl ">
           <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full 
                          text-sm font-semibold mb-6 animate-fade-in">
