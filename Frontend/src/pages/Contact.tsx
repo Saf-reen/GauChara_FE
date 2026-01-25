@@ -228,7 +228,7 @@ const Contact = () => {
                   {
                     icon: Mail,
                     title: "Email Address",
-                    content: "info@gauchara.com",
+                    content: "savadiafoundation@gmail.com",
                   },
                   {
                     icon: Clock,
