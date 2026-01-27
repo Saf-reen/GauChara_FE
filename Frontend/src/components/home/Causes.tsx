@@ -37,11 +37,11 @@ const Causes = () => {
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full 
                          text-sm font-semibold mb-4">
-            Our Causes
+            Our Initiatives
           </span>
-          <h2 className="section-title">Help Us Make A Difference</h2>
+          <h2 className="section-title">Support Our Sacred Mission</h2>
           <p className="section-subtitle">
-            Your support enables us to continue our vital work in communities around the world.
+            Your contribution directly supports the nourishment and care of Gaumata.
           </p>
         </div>
 

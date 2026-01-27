@@ -51,19 +51,19 @@ const About = () => {
             </span>
 
             <h2 className="section-title">
-              Dedicated To The Welfare Of Every Gaumata
+              Sacred Endeavor for Gaumata
             </h2>
 
             <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-              GauChara Foundation has been at the forefront of cow protection efforts,
-              providing a safe haven for abandoned, injured, and non-milking cows. Our
-              modern Gaushalas are designed to provide the highest standards of care.
+              GauChara is an initiative of the Savadia Foundation, established as a sacred
+              endeavor dedicated to the nourishment of Bos Indicus cows. We believe in
+              preserving the spiritual and cultural significance of Gaumata.
             </p>
 
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              From organic fodder production to specialized veterinary care, every
-              initiative we take is driven by our reverence for the cow as a
-              symbol of life and sustenance in our culture.
+              Our focus is on providing high-quality silage made from corn crops to ensure
+              the health and well-being of these cows, promoting sustainable cattle care
+              and a dignified life for every animal.
             </p>
 
             {/* Features */}

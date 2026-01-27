@@ -49,11 +49,11 @@ const BlogPreview = () => {
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full 
                          text-sm font-semibold mb-4">
-            Latest News
+            GauChara Updates
           </span>
-          <h2 className="section-title">Stories From The Field</h2>
+          <h2 className="section-title">Chronicles of Care</h2>
           <p className="section-subtitle">
-            Stay updated with our latest news, success stories, and insights from our work.
+            Read about our recent activities, rescue stories, and the impact of your support.
           </p>
         </div>
 

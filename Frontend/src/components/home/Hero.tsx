@@ -20,19 +20,19 @@ const Hero = () => {
         <div className="max-w-2xl ">
           <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full 
                          text-sm font-semibold mb-6 animate-fade-in">
-            Nourishing Our Sacred Cows
+            An Initiative of Savadia Foundation
           </span>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 
                        leading-tight animate-slide-up font-serif">
             GauChara:
-            <span className="text-primary block mt-2 p-2">A Sacred Initiative for Gaumata</span>
+            <span className="text-primary block mt-2 p-2">Nourishing Bos Indicus Cows</span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/80 mb-8 leading-relaxed 
                       animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            Join us in our mission to provide shelter, medical care, and a dignified life
-            to abandoned and elderly cows. Together, we can preserve our sacred heritage.
+            Dedicated to the nourishment of Gaumata, the spiritual cornerstone of our tradition.
+            We provide high-quality silage made from corn crops to ensure their health and well-being.
           </p>
 
           <div className="flex flex-wrap gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>

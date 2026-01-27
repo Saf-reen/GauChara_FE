@@ -112,7 +112,7 @@ const Chatbot = () => {
     }
 
     if (lowerQuery.includes('contact') || lowerQuery.includes('reach')) {
-      return "You can reach us at info@gauchara.com or call +977 123 456 7890. You can also visit our Contact page to send us a message directly.";
+      return "You can reach us at savadiafoundation@gmail.com or call +977 123 456 7890. You can also visit our Contact page to send us a message directly.";
     }
 
     if (lowerQuery.includes('volunteer')) {

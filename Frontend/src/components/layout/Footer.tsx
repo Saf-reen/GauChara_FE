@@ -23,10 +23,10 @@ const Footer = () => {
   ];
 
   const causes = [
-    { name: 'Education', path: '/causes?category=education' },
-    { name: 'Healthcare', path: '/causes?category=healthcare' },
-    { name: 'Food & Water', path: '/causes?category=food' },
-    { name: 'Environment', path: '/causes?category=environment' },
+    { name: 'Cow Shelter', path: '/causes?category=shelter' },
+    { name: 'Medical Care', path: '/causes?category=medical' },
+    { name: 'Fodder Distribution', path: '/causes?category=fodder' },
+    { name: 'Organic Farming', path: '/causes?category=farming' },
   ];
 
   const socialLinks = [
@@ -53,8 +53,9 @@ const Footer = () => {
               </span> */}
             </div>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Empowering communities and transforming lives through compassion,
-              education, and sustainable development initiatives.
+              Dedicated to the nourishment and welfare of Bos Indicus cows (Gaumata)
+              through sustainable fodder production and compassionate care.
+              An initiative of Savadia Foundation.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => (

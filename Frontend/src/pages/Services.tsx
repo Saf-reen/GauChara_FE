@@ -184,7 +184,7 @@ const Services = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">Email Us</p>
-                                        <p className="font-bold">info@gauchara.com</p>
+                                        <p className="font-bold">savadiafoundation@gmail.com</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">

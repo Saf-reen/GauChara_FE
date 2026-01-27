@@ -70,11 +70,11 @@ const Testimonials = () => {
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full 
                          text-sm font-semibold mb-4">
-            Testimonials
+            Devotee Voices
           </span>
-          <h2 className="section-title">What People Say</h2>
+          <h2 className="section-title">Words of Devotion</h2>
           <p className="section-subtitle">
-            Hear from the communities we serve and the people who support our mission.
+            Heartfelt messages from those who support our sacred mission.
           </p>
         </div>
 
