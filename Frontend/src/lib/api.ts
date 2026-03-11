@@ -6,33 +6,66 @@ export const authApi = {
   login: (data: Record<string, unknown>) => axiosInstance.post('/login/', data),
   register: (data: Record<string, unknown>) => axiosInstance.post('/register/', data),
   resetPassword: (data: Record<string, unknown>) => axiosInstance.post('/reset-password/', data),
-  adminLogin: (data: Record<string, unknown>) => axiosInstance.post('/admin/login', data),
+  adminLogin: (data: Record<string, unknown>) => axiosInstance.post('/login/', data),
+  logout: () => axiosInstance.post('/logout/'),
 };
 
 // Blog APIs
 export const blogApi = {
-  getAll: () => axiosInstance.get('/blogs'),
-  getBySlug: (slug: string) => axiosInstance.get(`/blogs/${slug}`),
-  create: (data: Record<string, unknown>) => axiosInstance.post('/blogs', data),
-  update: (id: string, data: Record<string, unknown>) => axiosInstance.put(`/blogs/${id}`, data),
-  delete: (id: string) => axiosInstance.delete(`/blogs/${id}`),
+  getAll: () => axiosInstance.get('/blog/'),
+  getById: (id: number | string) => axiosInstance.get(`/blog/${id}/`),
+  getBySlug: (slug: string) => axiosInstance.get(`/blog/${slug}/`), // Keeping for compatibility, check if backend supports
+  create: (data: FormData | any) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.post('/blog/', data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  update: (id: number | string, data: FormData | any) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.put(`/blog/${id}/`, data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  delete: (id: number | string) => axiosInstance.delete(`/blog/${id}/`),
 };
 
 // Cause APIs
 export const causeApi = {
-  getAll: () => axiosInstance.get('/causes'),
-  getById: (id: string) => axiosInstance.get(`/causes/${id}`),
-  create: (data: Record<string, unknown>) => axiosInstance.post('/causes', data),
-  update: (id: string, data: Record<string, unknown>) => axiosInstance.put(`/causes/${id}`, data),
-  delete: (id: string) => axiosInstance.delete(`/causes/${id}`),
+  getAll: () => axiosInstance.get('/cause/'),
+  getById: (id: string) => axiosInstance.get(`/cause/${id}/`),
+  create: (data: FormData | Record<string, unknown>) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.post('/cause/', data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  update: (id: string, data: FormData | Record<string, unknown>) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.put(`/cause/${id}/`, data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  delete: (id: string) => axiosInstance.delete(`/cause/${id}/`),
 };
 
 // Testimonial APIs
 export const testimonialApi = {
-  getAll: () => axiosInstance.get('/testimonials'),
-  create: (data: Record<string, unknown>) => axiosInstance.post('/testimonials', data),
-  update: (id: string, data: Record<string, unknown>) => axiosInstance.put(`/testimonials/${id}`, data),
-  delete: (id: string) => axiosInstance.delete(`/testimonials/${id}`),
+  getAll: () => axiosInstance.get('/testimonial/'),
+  getById: (id: string | number) => axiosInstance.get(`/testimonial/${id}/`),
+  create: (data: FormData | Record<string, unknown>) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.post('/testimonial/', data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  update: (id: string, data: FormData | Record<string, unknown>) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.put(`/testimonial/${id}/`, data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  delete: (id: string) => axiosInstance.delete(`/testimonial/${id}/`),
 };
 
 // Donation APIs
@@ -57,7 +90,9 @@ export const donationApi = {
 
 // Contact API
 export const contactApi = {
-  submit: (data: Record<string, unknown>) => axiosInstance.post('/contact', data),
+  create: (data: Record<string, unknown>) => axiosInstance.post('/contact/', data),
+  getAll: () => axiosInstance.get('/contact/'),
+  delete: (id: number | string) => axiosInstance.delete(`/contact/${id}/`),
 };
 
 // Chatbot API
@@ -66,35 +101,90 @@ export const chatbotApi = {
   getQuickReplies: () => axiosInstance.get('/chat/quick-replies'),
 };
 
+// Volunteer API
+export const volunteerApi = {
+  create: (data: Record<string, unknown>) => axiosInstance.post('/volunteer/', data),
+  getAll: () => axiosInstance.get('/volunteer/'),
+  getById: (id: number | string) => axiosInstance.get(`/volunteer/${id}/`),
+  update: (id: number | string, data: Record<string, unknown>) => axiosInstance.put(`/volunteer/${id}/`, data),
+  delete: (id: number | string) => axiosInstance.delete(`/volunteer/${id}/`),
+};
+
+// Gallery API
+export const galleryApi = {
+  create: (data: FormData) => axiosInstance.post('/gallery/', data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  getAll: () => axiosInstance.get('/gallery/'),
+  getById: (id: number | string) => axiosInstance.get(`/gallery/${id}/`),
+  update: (id: number | string, data: FormData) => axiosInstance.put(`/gallery/${id}/`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  delete: (id: number | string) => axiosInstance.delete(`/gallery/${id}/`),
+};
+
+// Category API
+export const categoryApi = {
+  create: (data: Record<string, unknown>) => axiosInstance.post('/category/', data),
+  getAll: () => axiosInstance.get('/category/'),
+  getById: (id: number | string) => axiosInstance.get(`/category/${id}/`),
+  update: (id: number | string, data: Record<string, unknown>) => axiosInstance.put(`/category/${id}/`, data),
+  delete: (id: number | string) => axiosInstance.delete(`/category/${id}/`),
+};
+
+// Cause Category API
+export const causeCategoryApi = {
+  create: (data: Record<string, unknown>) => axiosInstance.post('/category1/', data),
+  getAll: () => axiosInstance.get('/category1/'),
+  delete: (id: number | string) => axiosInstance.delete(`/category1/${id}/`),
+};
+
+// Program API
+export const programApi = {
+  getAll: () => axiosInstance.get('/program/'),
+  getById: (id: string | number) => axiosInstance.get(`/program/${id}/`),
+  create: (data: FormData | Record<string, unknown>) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.post('/program/', data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  update: (id: string | number, data: FormData | Record<string, unknown>) => {
+    const isFormData = data instanceof FormData;
+    return axiosInstance.put(`/program/${id}/`, data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+    });
+  },
+  delete: (id: string | number) => axiosInstance.delete(`/program/${id}/`),
+};
+
 // Type definitions
 export interface Blog {
-  id: string;
+  id: number;
+  author: {
+    username: string;
+    email: string;
+  };
   title: string;
   slug: string;
-  content: string;
   excerpt: string;
-  featuredImage: string;
-  images: string[];
-  quote?: {
-    text: string;
-    author: string;
-  };
-  author: string;
-  createdAt: string;
-  updatedAt: string;
+  content: string;
+  featured_image_url: string | null;
+  created_at?: string;
 }
 
 export interface Cause {
-  id: string;
+  id: number;
   title: string;
-  description: string;
-  content: string;
-  image: string;
-  goalAmount: number;
-  raisedAmount: number;
+  short_description: string;
+  full_content: string;
+  image: string | null;
+  image_file: string | null;
+  image_url: string | null;
+  goal_amount: string;
   category: string;
   featured: boolean;
-  createdAt: string;
+  created_at?: string;
 }
 
 export interface Testimonial {
@@ -129,15 +219,41 @@ export interface PayPalVerification {
   status: string;
 }
 
-export interface ContactData {
+export interface ContactMessage {
+  id: number;
   name: string;
   email: string;
+  phone: string;
   subject: string;
   message: string;
-  captchaToken?: string;
+  created_at: string;
 }
 
 export interface ChatbotResponse {
   message: string;
   suggestions?: string[];
 }
+
+export interface VolunteerApplication {
+  id?: number;
+  full_name: string;
+  email: string;
+  phone: string;
+  age: number;
+  address: string;
+  occupation: string;
+  availability: string;
+  skills: string;
+  reason: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  created_at?: string;
+}
+
+export interface Program {
+  id: number;
+  title: string;
+  description: string;
+  file_image: string | null;
+  url_image: string | null;
+}
+

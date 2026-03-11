@@ -16,7 +16,9 @@ const Testimonials = () => {
         setTestimonials(response.data);
       } catch (error) {
         console.error("Failed to fetch testimonials:", error);
-        toast.error("Failed to load testimonials");
+        // Don't show error toast for network failures on public pages
+        // Just gracefully show empty state
+        setTestimonials([]);
       } finally {
         setIsLoading(false);
       }

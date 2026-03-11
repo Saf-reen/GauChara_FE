@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { testimonialApi } from '@/lib/api';
+import { galleryApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Loader2, ArrowLeft, Star } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import {
     Table,
@@ -33,55 +33,39 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Copy, Check, Eye } from 'lucide-react';
 
-const ManageTestimonials = () => {
-    const [testimonials, setTestimonials] = useState<any[]>([]);
+const ManageGallery = () => {
+    const [images, setImages] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedTestimonial, setSelectedTestimonial] = useState<any | null>(null);
+    const [selectedImage, setSelectedImage] = useState<any | null>(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
     useEffect(() => {
-        fetchTestimonials();
+        fetchGallery();
     }, []);
 
-    const fetchTestimonials = async () => {
+    const fetchGallery = async () => {
         try {
-            const response = await testimonialApi.getAll();
-            setTestimonials(response.data);
+            const response = await galleryApi.getAll();
+            setImages(response.data);
         } catch (error) {
-            toast.error('Failed to fetch testimonials');
+            toast.error('Failed to fetch gallery images');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const getImageUrl = (imagePath: string) => {
-        if (!imagePath) return null;
-        if (typeof imagePath === 'string') {
-            if (imagePath.includes('/media/https%3A')) {
-                const parts = imagePath.split('/media/');
-                if (parts.length > 1) return decodeURIComponent(parts[1]);
-            }
-            if (imagePath.includes('/media/http%3A')) {
-                const parts = imagePath.split('/media/');
-                if (parts.length > 1) return decodeURIComponent(parts[1]);
-            }
-            if (imagePath.startsWith('http')) return imagePath;
-        }
-        return `http://127.0.0.1:8000${imagePath}`;
-    };
-
     const handleDelete = async (id: string) => {
         try {
-            await testimonialApi.delete(id);
-            setTestimonials(testimonials.filter(t => t._id !== id));
-            toast.success('Testimonial deleted successfully');
+            await galleryApi.delete(id);
+            setImages(images.filter(img => (img.id || img._id) !== id));
+            toast.success('Image deleted successfully');
         } catch (error) {
-            toast.error('Failed to delete testimonial');
+            toast.error('Failed to delete image');
         }
     };
 
-    const openViewModal = (testimonial: any) => {
-        setSelectedTestimonial(testimonial);
+    const openViewModal = (image: any) => {
+        setSelectedImage(image);
         setIsViewOpen(true);
     };
 
@@ -96,14 +80,14 @@ const ManageTestimonials = () => {
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-3xl font-bold">Manage Testimonials</h1>
-                            <p className="text-muted-foreground">Create, edit, and remove testimonials</p>
+                            <h1 className="text-3xl font-bold">Manage Gallery</h1>
+                            <p className="text-muted-foreground">Add, edit, and remove gallery images</p>
                         </div>
                     </div>
                     <Button asChild>
-                        <Link to="/admin/testimonials/new">
+                        <Link to="/admin/gallery/new">
                             <Plus className="w-4 h-4 mr-2" />
-                            Create New
+                            Add New Image
                         </Link>
                     </Button>
                 </div>
@@ -118,27 +102,26 @@ const ManageTestimonials = () => {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Image</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Rating</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Caption</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {testimonials.length === 0 ? (
+                                {images.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
-                                            No testimonials found. Create your first one!
+                                            No images found. Add your first one!
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    testimonials.map((testimonial) => (
-                                        <TableRow key={testimonial._id || testimonial.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openViewModal(testimonial)}>
+                                    images.map((img) => (
+                                        <TableRow key={img.id || img._id} className="cursor-pointer hover:bg-muted/50" onClick={() => openViewModal(img)}>
                                             <TableCell>
-                                                <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
+                                                <div className="w-24 h-16 rounded overflow-hidden bg-muted">
                                                     <img
-                                                        src={getImageUrl(testimonial.image) || '/placeholder.svg'}
-                                                        alt={testimonial.name}
+                                                        src={img.image}
+                                                        alt={img.description}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {
                                                             e.currentTarget.onerror = null;
@@ -147,20 +130,17 @@ const ManageTestimonials = () => {
                                                     />
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="font-medium">{testimonial.name}</TableCell>
-                                            <TableCell>{testimonial.role}</TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    {testimonial.rating} <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                                </div>
+                                                <Badge variant="outline" className="capitalize">{img.category_name}</Badge>
                                             </TableCell>
+                                            <TableCell className="max-w-md truncate">{img.caption}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                                    <Button variant="ghost" size="icon" onClick={() => openViewModal(testimonial)}>
+                                                    <Button variant="ghost" size="icon" onClick={() => openViewModal(img)}>
                                                         <Eye className="w-4 h-4 text-muted-foreground" />
                                                     </Button>
                                                     <Button variant="ghost" size="icon" asChild>
-                                                        <Link to={`/admin/testimonials/edit/${testimonial._id || testimonial.id}`}>
+                                                        <Link to={`/admin/gallery/edit/${img.id || img._id}`}>
                                                             <Pencil className="w-4 h-4 text-blue-500" />
                                                         </Link>
                                                     </Button>
@@ -175,12 +155,12 @@ const ManageTestimonials = () => {
                                                             <AlertDialogHeader>
                                                                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    This action cannot be undone. This will permanently delete the testimonial.
+                                                                    This action cannot be undone. This will permanently delete the image.
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleDelete(testimonial._id || testimonial.id)} className="bg-red-500 hover:bg-red-600">
+                                                                <AlertDialogAction onClick={() => handleDelete(img.id || img._id)} className="bg-red-500 hover:bg-red-600">
                                                                     Delete
                                                                 </AlertDialogAction>
                                                             </AlertDialogFooter>
@@ -199,55 +179,42 @@ const ManageTestimonials = () => {
 
             {/* View Details Modal */}
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Testimonial Details</DialogTitle>
+                        <DialogTitle>Gallery Image Details</DialogTitle>
                         <DialogDescription>
-                            Review testimonial content
+                            Full details for selected image
                         </DialogDescription>
                     </DialogHeader>
 
-                    {selectedTestimonial && (
+                    {selectedImage && (
                         <div className="space-y-6 pt-4">
-                            <div className="flex items-start gap-4">
-                                {selectedTestimonial.image ? (
-                                    <img
-                                        src={getImageUrl(selectedTestimonial.image) || '/placeholder.svg'}
-                                        alt={selectedTestimonial.name}
-                                        className="w-16 h-16 rounded-full object-cover border"
-                                        onError={(e) => {
-                                            e.currentTarget.src = '/placeholder.svg';
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary">
-                                        {selectedTestimonial.name ? selectedTestimonial.name.charAt(0).toUpperCase() : '?'}
-                                    </div>
-                                )}
-                                <div>
-                                    <h3 className="text-xl font-bold">{selectedTestimonial.name}</h3>
-                                    <p className="text-muted-foreground">{selectedTestimonial.role}</p>
-                                    <div className="flex items-center gap-1 mt-1">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-4 h-4 ${i < selectedTestimonial.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                                            />
-                                        ))}
-                                    </div>
+                            {/* Image */}
+                            <div className="rounded-xl overflow-hidden border bg-muted w-full aspect-video flex items-center justify-center bg-black/5">
+                                <img
+                                    src={selectedImage.image}
+                                    alt={selectedImage.caption}
+                                    className="max-h-full max-w-full object-contain"
+                                    onError={(e) => {
+                                        e.currentTarget.src = '/placeholder.svg';
+                                    }}
+                                />
+                            </div>
+
+                            <div className="grid gap-4">
+                                <div className="border rounded-lg p-4 bg-muted/30">
+                                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Category</h4>
+                                    <p className="text-lg font-medium">{selectedImage.category_name}</p>
                                 </div>
-                            </div>
 
-                            <div className="bg-muted/30 p-4 rounded-xl relative">
-                                <span className="absolute top-2 left-2 text-4xl text-primary/20 leading-none">"</span>
-                                <p className="relative z-10 pt-4 px-2 italic text-lg">
-                                    {selectedTestimonial.content}
-                                </p>
-                                <span className="absolute bottom-[-10px] right-4 text-4xl text-primary/20 leading-none rotate-180">"</span>
-                            </div>
+                                <div className="border rounded-lg p-4 bg-muted/30">
+                                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Caption</h4>
+                                    <p className="text-base">{selectedImage.caption || "No caption provided."}</p>
+                                </div>
 
-                            <div className="text-xs text-muted-foreground text-right border-t pt-2">
-                                ID: {selectedTestimonial.id || selectedTestimonial._id}
+                                <div className="text-xs text-muted-foreground text-right">
+                                    ID: {selectedImage.id || selectedImage._id}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -257,4 +224,4 @@ const ManageTestimonials = () => {
     );
 };
 
-export default ManageTestimonials;
+export default ManageGallery;

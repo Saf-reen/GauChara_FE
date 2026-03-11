@@ -1,74 +1,90 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Heart, CreditCard, Building2, Globe, Shield, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Building2, Shield, Check, Smartphone, User, Mail, Phone, CreditCard as PanIcon, ArrowRight, ArrowLeft, Upload, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/layout/Layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PageHero from "@/components/layout/PageHero";
 import { donationApi } from "@/lib/api";
 
 const donationAmounts = [500, 1000, 2500, 5000, 10000, 25000];
 
-import PageHero from "@/components/layout/PageHero";
-
 const Donate = () => {
     const { toast } = useToast();
+    const [step, setStep] = useState(1);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [selectedAmount, setSelectedAmount] = useState<number | null>(1000);
     const [customAmount, setCustomAmount] = useState("");
-    const [paymentMethod, setPaymentMethod] = useState("card");
-    const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleDonate = async () => {
-        const amount = customAmount ? parseInt(customAmount) : selectedAmount;
-        if (!amount || amount < 100) {
-            toast({
-                title: "Invalid Amount",
-                description: "Please enter a valid donation amount (minimum ₹100).",
-                variant: "destructive",
-            });
-            return;
+    const [formData, setFormData] = useState({
+        full_name: "",
+        email: "",
+        phone: "",
+        pan: "",
+    });
+
+    const [paymentRegion, setPaymentRegion] = useState<"indian" | "international" | null>(null);
+
+    // Ensure scroll to top of form on step change
+    useEffect(() => {
+        if (step > 1) {
+            window.scrollTo({ top: 400, behavior: 'smooth' });
         }
+    }, [step]);
 
-        setIsProcessing(true);
-
-        try {
-            // Try to create payment intent via backend
-            const response = await donationApi.createPaymentIntent({
-                amount,
-                currency: "INR",
-                paymentMethod: paymentMethod as 'card' | 'paypal' | 'bank',
-            });
-
-            if (response.data.success && response.data.data) {
-                // In a real implementation, you would use Stripe.js to complete the payment
-                // For now, we'll simulate a successful donation
-                const confirmResponse = await donationApi.confirmDonation({
-                    donationId: response.data.data.donationId,
-                    paymentMethod,
-                });
-
+    const handleNextStep = () => {
+        if (step === 1) {
+            if (!formData.full_name || !formData.email || !formData.phone) {
                 toast({
-                    title: "Thank You for Your Generosity! 🙏",
-                    description: confirmResponse.data?.message || `Your donation of ₹${amount.toLocaleString()} will help nourish many sacred cows.`,
+                    title: "Missing Information",
+                    description: "Please fill in all required fields.",
+                    variant: "destructive",
                 });
-            } else {
-                // Fallback if backend is not running or returns success: false
-                toast({
-                    title: "Thank You for Your Generosity! 🙏",
-                    description: `Your donation of ₹${amount.toLocaleString()} will help nourish many sacred cows.`,
-                });
+                return;
             }
-        } catch (error) {
-            console.error("Donation error:", error);
-            // Fallback for demo purposes
-            toast({
-                title: "Thank You for Your Generosity! 🙏",
-                description: `Your donation of ₹${amount.toLocaleString()} will help nourish many sacred cows.`,
-            });
-        } finally {
-            setIsProcessing(false);
+            const amount = customAmount ? parseInt(customAmount) : selectedAmount;
+            if (!amount || amount < 100) {
+                toast({
+                    title: "Invalid Amount",
+                    description: "Please enter a valid donation amount (minimum ₹100).",
+                    variant: "destructive",
+                });
+                return;
+            }
         }
+        setStep(step + 1);
+    };
+
+    const handlePrevStep = () => {
+        setStep(step - 1);
+    };
+
+    const handleFinalSubmit = () => {
+        setIsProcessing(true);
+        const amount = customAmount ? parseInt(customAmount) : selectedAmount;
+
+        // Background API call - non-blocking
+        donationApi.create({
+            amount,
+            currency: "INR",
+            donorName: formData.full_name,
+            donorEmail: formData.email,
+            donorPhone: formData.phone,
+            pan: formData.pan,
+            paymentMethod: paymentRegion === 'indian' ? 'upi' : 'swift',
+        }).catch(err => console.error("History logging failed:", err));
+
+        // Immediate transition with a small visual delay
+        setTimeout(() => {
+            setIsProcessing(false);
+            setStep(3);
+            toast({
+                title: "Processing Complete",
+                description: "Your official QR code is ready.",
+            });
+        }, 800);
     };
 
     const finalAmount = customAmount ? parseInt(customAmount) || 0 : selectedAmount || 0;
@@ -82,240 +98,412 @@ const Donate = () => {
                 description="Your generous contribution helps us provide nutritious feed, veterinary care, and loving shelter to thousands of sacred Bos Indicus cows across India."
             />
 
-            {/* Donation Section */}
             <section className="py-20 bg-background">
                 <div className="container mx-auto px-4">
-                    <div className="grid lg:grid-cols-5 gap-12">
-                        {/* Donation Form */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="lg:col-span-3"
-                        >
-                            <div className="card-sacred p-8">
-                                <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-                                    Choose Your Donation Amount
-                                </h2>
+                    {/* Premium Progress Stepper */}
+                    <div className="max-w-4xl mx-auto mb-16 px-4">
+                        <div className="relative flex items-center justify-between">
+                            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-muted -translate-y-1/2 z-0" />
+                            <motion.div
+                                className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 z-0"
+                                initial={{ width: "0%" }}
+                                animate={{ width: step === 1 ? "0%" : step === 2 ? "50%" : "100%" }}
+                                transition={{ duration: 0.5 }}
+                            />
 
-                                {/* Amount Selection */}
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                                    {donationAmounts.map((amount) => (
-                                        <button
-                                            key={amount}
-                                            onClick={() => {
-                                                setSelectedAmount(amount);
-                                                setCustomAmount("");
-                                            }}
-                                            className={`p-4 rounded-xl border-2 transition-all ${selectedAmount === amount && !customAmount
-                                                ? "border-primary bg-primary/10 text-primary"
-                                                : "border-border hover:border-primary/50"
-                                                }`}
-                                        >
-                                            <span className="text-xl font-bold">₹{amount.toLocaleString()}</span>
-                                        </button>
-                                    ))}
+                            {[
+                                { label: 'Details', icon: User },
+                                { label: 'Method', icon: Smartphone },
+                                { label: 'Payment', icon: Heart }
+                            ].map((item, idx) => (
+                                <div key={idx} className="relative z-10 flex flex-col items-center gap-2">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${step > idx + 1 ? 'bg-primary text-white' : step === idx + 1 ? 'bg-primary text-white ring-8 ring-primary/10 scale-110' : 'bg-background border-2 border-muted text-muted-foreground'}`}>
+                                        <item.icon className="w-6 h-6" />
+                                    </div>
+                                    <span className={`text-[10px] font-black uppercase tracking-widest ${step === idx + 1 ? 'text-primary' : 'text-muted-foreground'}`}>
+                                        {item.label}
+                                    </span>
                                 </div>
+                            ))}
+                        </div>
+                    </div>
 
-                                {/* Custom Amount */}
-                                <div className="mb-8">
-                                    <label className="block text-sm font-medium text-foreground mb-2">
-                                        Or enter a custom amount (₹)
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        value={customAmount}
-                                        onChange={(e) => {
-                                            setCustomAmount(e.target.value);
-                                            setSelectedAmount(null);
-                                        }}
-                                        placeholder="Enter amount"
-                                        min="100"
-                                    />
-                                </div>
+                    <div className="grid lg:grid-cols-5 gap-12 max-w-7xl mx-auto">
+                        <div className="lg:col-span-3">
+                            <AnimatePresence mode="wait">
+                                {step === 1 && (
+                                    <motion.div
+                                        key="step1"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        className="card-sacred p-8 sm:p-12 space-y-10"
+                                    >
+                                        <header>
+                                            <h2 className="font-display text-3xl font-black text-foreground mb-2 tracking-tight">Step 1: Basic Information</h2>
+                                            <p className="text-muted-foreground text-sm font-medium">This information ensures your donation receipt is generated correctly.</p>
+                                        </header>
 
-                                {/* Payment Methods */}
-                                <h3 className="font-semibold text-foreground mb-4">Select Payment Method</h3>
-                                <Tabs value={paymentMethod} onValueChange={setPaymentMethod} className="mb-8">
-                                    <TabsList className="grid grid-cols-3 w-full">
-                                        <TabsTrigger value="card" className="flex items-center gap-2">
-                                            <CreditCard className="w-4 h-4" />
-                                            Card
-                                        </TabsTrigger>
-                                        <TabsTrigger value="paypal" className="flex items-center gap-2">
-                                            <Globe className="w-4 h-4" />
-                                            PayPal
-                                        </TabsTrigger>
-                                        <TabsTrigger value="bank" className="flex items-center gap-2">
-                                            <Building2 className="w-4 h-4" />
-                                            Bank
-                                        </TabsTrigger>
-                                    </TabsList>
-
-                                    <TabsContent value="card" className="mt-6 space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-foreground mb-2">
-                                                Card Number
-                                            </label>
-                                            <Input placeholder="1234 5678 9012 3456" />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-foreground mb-2">
-                                                    Expiry Date
-                                                </label>
-                                                <Input placeholder="MM/YY" />
+                                        <div className="space-y-8">
+                                            <div className="grid md:grid-cols-2 gap-8 text-left">
+                                                <div className="space-y-3">
+                                                    <Label className="text-xs font-black uppercase tracking-wider text-muted-foreground/80">Full Name *</Label>
+                                                    <div className="relative group">
+                                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                        <Input
+                                                            placeholder="John Doe"
+                                                            className="h-14 pl-12 rounded-2xl border-2 focus:border-primary transition-all bg-muted/20 hover:bg-muted/40"
+                                                            value={formData.full_name}
+                                                            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-xs font-black uppercase tracking-wider text-muted-foreground/80">Email Address *</Label>
+                                                    <div className="relative group">
+                                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                        <Input
+                                                            type="email"
+                                                            placeholder="john@example.com"
+                                                            className="h-14 pl-12 rounded-2xl border-2 focus:border-primary transition-all bg-muted/20 hover:bg-muted/40"
+                                                            value={formData.email}
+                                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-foreground mb-2">
-                                                    CVV
-                                                </label>
-                                                <Input placeholder="123" type="password" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-foreground mb-2">
-                                                Cardholder Name
-                                            </label>
-                                            <Input placeholder="John Doe" />
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Shield className="w-4 h-4 text-primary" />
-                                            <span>Secure payment with 256-bit SSL encryption</span>
-                                        </div>
-                                        <div className="flex gap-2 pt-2">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/100px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6 object-contain" />
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/100px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6 object-contain" />
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/100px-American_Express_logo_%282018%29.svg.png" alt="American Express" className="h-6 object-contain" />
-                                        </div>
-                                    </TabsContent>
 
-                                    <TabsContent value="paypal" className="mt-6">
-                                        <div className="text-center py-8 bg-muted/50 rounded-xl">
-                                            <Globe className="w-16 h-16 text-primary mx-auto mb-4" />
-                                            <h4 className="font-semibold text-foreground mb-2">PayPal Donation</h4>
-                                            <p className="text-muted-foreground mb-4">
-                                                Click below to donate securely via PayPal
-                                            </p>
-                                            <Button variant="outline" className="bg-[#0070ba] text-white border-0 hover:bg-[#005ea6]">
-                                                Pay with PayPal
+                                            <div className="grid md:grid-cols-2 gap-8 text-left">
+                                                <div className="space-y-3">
+                                                    <Label className="text-xs font-black uppercase tracking-wider text-muted-foreground/80">WhatsApp Number *</Label>
+                                                    <div className="relative group">
+                                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                        <Input
+                                                            placeholder="+91 9876543210"
+                                                            className="h-14 pl-12 rounded-2xl border-2 focus:border-primary transition-all bg-muted/20 hover:bg-muted/40"
+                                                            value={formData.phone}
+                                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-xs font-black uppercase tracking-wider text-muted-foreground/80">PAN Number (Optional)</Label>
+                                                    <div className="relative group">
+                                                        <PanIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                        <Input
+                                                            placeholder="ABCDE1234F"
+                                                            className="h-14 pl-12 rounded-2xl border-2 focus:border-primary transition-all bg-muted/20 hover:bg-muted/40"
+                                                            value={formData.pan}
+                                                            onChange={(e) => setFormData({ ...formData, pan: e.target.value.toUpperCase() })}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-10 border-t border-border/40">
+                                                <h3 className="font-display text-xl font-black mb-6 text-foreground flex items-center gap-3">
+                                                    <Heart className="w-5 h-5 text-primary" />
+                                                    Donation Amount
+                                                </h3>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+                                                    {donationAmounts.map((amount) => (
+                                                        <button
+                                                            key={amount}
+                                                            onClick={() => {
+                                                                setSelectedAmount(amount);
+                                                                setCustomAmount("");
+                                                            }}
+                                                            className={`p-5 rounded-2xl border-2 transition-all text-center relative overflow-hidden group ${selectedAmount === amount && !customAmount
+                                                                ? "border-primary bg-primary/5 text-primary shadow-lg shadow-primary/5"
+                                                                : "border-border hover:border-primary/30"
+                                                                }`}
+                                                        >
+                                                            <span className="text-2xl font-black block mb-1 group-hover:scale-110 transition-transform">₹{amount.toLocaleString()}</span>
+                                                            <span className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/60">Gau Seva</span>
+                                                            {selectedAmount === amount && !customAmount && (
+                                                                <div className="absolute -bottom-2 -right-2 bg-primary text-white p-2 rounded-tl-xl translate-x-1 translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
+                                                                    <Check className="w-4 h-4" />
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div className="space-y-4 text-left">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Custom Amount</Label>
+                                                    <div className="relative group">
+                                                        <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-foreground/40 group-focus-within:text-primary transition-colors">₹</span>
+                                                        <Input
+                                                            type="number"
+                                                            value={customAmount}
+                                                            onChange={(e) => {
+                                                                setCustomAmount(e.target.value);
+                                                                setSelectedAmount(null);
+                                                            }}
+                                                            placeholder="Enter any amount"
+                                                            className="h-16 pl-12 text-2xl font-black rounded-2xl border-2 bg-muted/10 focus:bg-background"
+                                                            min="100"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <Button
+                                                onClick={handleNextStep}
+                                                variant="sacred"
+                                                size="lg"
+                                                className="w-full h-16 text-xl font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 group"
+                                            >
+                                                Next: Payment Method
+                                                <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
                                             </Button>
                                         </div>
-                                    </TabsContent>
+                                    </motion.div>
+                                )}
 
-                                    <TabsContent value="bank" className="mt-6">
-                                        <div className="p-6 bg-muted/50 rounded-xl space-y-4">
-                                            <h4 className="font-semibold text-foreground">Bank Transfer / SWIFT Details</h4>
-                                            <div className="space-y-3 text-sm">
-                                                <div className="flex justify-between py-2 border-b border-border">
-                                                    <span className="text-muted-foreground">Bank Name:</span>
-                                                    <span className="font-medium">State Bank of India</span>
+                                {step === 2 && (
+                                    <motion.div
+                                        key="step2"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        className="card-sacred p-8 sm:p-12"
+                                    >
+                                        <header className="mb-10 text-left">
+                                            <h2 className="font-display text-3xl font-black text-foreground mb-2">Step 2: Region</h2>
+                                            <p className="text-muted-foreground text-sm font-medium">Choose based on your citizen status for tax compliance.</p>
+                                        </header>
+
+                                        <div className="grid sm:grid-cols-2 gap-8 mb-12">
+                                            <button
+                                                onClick={() => setPaymentRegion('indian')}
+                                                className={`group p-8 rounded-[32px] border-2 transition-all text-left flex flex-col gap-6 relative overflow-hidden ${paymentRegion === 'indian' ? 'border-primary bg-primary/5 ring-8 ring-primary/5' : 'border-border hover:border-primary/20 shadow-sm'}`}
+                                            >
+                                                <div className={`w-16 h-16 rounded-[20px] flex items-center justify-center transition-all ${paymentRegion === 'indian' ? 'bg-primary text-white shadow-xl scale-110' : 'bg-muted text-muted-foreground'}`}>
+                                                    <Smartphone className="w-8 h-8" />
                                                 </div>
-                                                <div className="flex justify-between py-2 border-b border-border">
-                                                    <span className="text-muted-foreground">Account Name:</span>
-                                                    <span className="font-medium">Savadia Foundation - GauChara</span>
+                                                <div>
+                                                    <h3 className="font-black text-2xl mb-2 tracking-tight">Indian Citizen</h3>
+                                                    <p className="text-xs text-muted-foreground font-medium leading-relaxed">Pay using UPI (GPay, PhonePe, Paytm), Indian Bank Accounts, or Cards.</p>
                                                 </div>
-                                                <div className="flex justify-between py-2 border-b border-border">
-                                                    <span className="text-muted-foreground">Account Number:</span>
-                                                    <span className="font-medium">1234567890123456</span>
+                                                {paymentRegion === 'indian' && (
+                                                    <div className="absolute top-6 right-6 bg-primary text-white p-2 rounded-xl shadow-lg">
+                                                        <Check className="w-6 h-6" />
+                                                    </div>
+                                                )}
+                                            </button>
+
+                                            <button
+                                                onClick={() => setPaymentRegion('international')}
+                                                className={`group p-8 rounded-[32px] border-2 transition-all text-left flex flex-col gap-6 relative overflow-hidden ${paymentRegion === 'international' ? 'border-primary bg-primary/5 ring-8 ring-primary/5' : 'border-border hover:border-primary/20 shadow-sm'}`}
+                                            >
+                                                <div className={`w-16 h-16 rounded-[20px] flex items-center justify-center transition-all ${paymentRegion === 'international' ? 'bg-primary text-white shadow-xl scale-110' : 'bg-muted text-muted-foreground'}`}>
+                                                    <Building2 className="w-8 h-8" />
                                                 </div>
-                                                <div className="flex justify-between py-2 border-b border-border">
-                                                    <span className="text-muted-foreground">IFSC Code:</span>
-                                                    <span className="font-medium">SBIN0001234</span>
+                                                <div>
+                                                    <h3 className="font-black text-2xl mb-2 tracking-tight">International</h3>
+                                                    <p className="text-xs text-muted-foreground font-medium leading-relaxed">Secure SWIFT transfers or International QR codes. Best for NRIs & Foreigners.</p>
                                                 </div>
-                                                <div className="flex justify-between py-2 border-b border-border">
-                                                    <span className="text-muted-foreground">SWIFT Code:</span>
-                                                    <span className="font-medium">SBININBB</span>
-                                                </div>
-                                                <div className="flex justify-between py-2">
-                                                    <span className="text-muted-foreground">Branch:</span>
-                                                    <span className="font-medium">Ahmedabad Main Branch</span>
-                                                </div>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground mt-4">
-                                                For international transfers, please include your email in the reference
-                                                so we can send you a receipt.
-                                            </p>
+                                                {paymentRegion === 'international' && (
+                                                    <div className="absolute top-6 right-6 bg-primary text-white p-2 rounded-xl shadow-lg">
+                                                        <Check className="w-6 h-6" />
+                                                    </div>
+                                                )}
+                                            </button>
                                         </div>
-                                    </TabsContent>
-                                </Tabs>
 
-                                {/* Submit Button */}
-                                <Button
-                                    onClick={handleDonate}
-                                    variant="sacred"
-                                    size="lg"
-                                    className="w-full text-lg"
-                                    disabled={finalAmount < 100 || isProcessing}
-                                >
-                                    <Heart className="w-5 h-5 mr-2" />
-                                    {isProcessing ? "Processing..." : `Donate ₹${finalAmount.toLocaleString()}`}
-                                </Button>
-                            </div>
-                        </motion.div>
+                                        <div className="flex flex-col sm:flex-row gap-6">
+                                            <Button variant="outline" onClick={handlePrevStep} className="h-16 flex-1 rounded-2xl font-black uppercase tracking-widest text-xs border-2">
+                                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                                Go Back
+                                            </Button>
+                                            <Button
+                                                onClick={handleFinalSubmit}
+                                                disabled={!paymentRegion || isProcessing}
+                                                variant="sacred"
+                                                className="h-16 flex-[2] text-lg font-black rounded-2xl shadow-xl shadow-primary/20"
+                                            >
+                                                {isProcessing ? "Processing..." : "Generate Official QR Code"}
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
 
-                        {/* Sidebar */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="lg:col-span-2 space-y-6"
-                        >
-                            {/* Impact Card */}
-                            <div className="card-sacred p-6">
-                                <h3 className="font-display text-xl font-bold text-foreground mb-4">
+                                {step === 3 && (
+                                    <motion.div
+                                        key="step3"
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="card-sacred p-8 sm:p-12 text-center"
+                                    >
+                                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-green-50 text-green-600 mb-8 border-4 border-white shadow-xl">
+                                            <Check className="w-10 h-10" />
+                                        </div>
+                                        <h2 className="font-display text-4xl font-black text-foreground mb-4 italic">
+                                            Scan to Support
+                                        </h2>
+                                        <p className="text-muted-foreground font-medium text-base max-w-sm mx-auto mb-12">
+                                            Please scan the official {paymentRegion === 'indian' ? 'Indian UPI' : 'International'} QR code to donate <span className="font-black text-primary underline decoration-primary/20 underline-offset-4 pointer-events-none">₹{finalAmount.toLocaleString()}</span>.
+                                        </p>
+
+                                        {/* High-End Scanning Area */}
+                                        <div className="relative max-w-[360px] mx-auto mb-12 group">
+                                            <div className="absolute -inset-4 bg-primary/10 rounded-[50px] blur-3xl opacity-0 group-hover:opacity-100 transition duration-700"></div>
+
+                                            <div className="relative p-10 bg-white dark:bg-zinc-950 rounded-[44px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-border/40 overflow-hidden">
+                                                {/* Scanning laser line */}
+                                                <motion.div
+                                                    className="absolute left-10 right-10 h-[2px] bg-primary/40 z-20"
+                                                    animate={{ top: ["10%", "90%", "10%"] }}
+                                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                                />
+
+                                                {/* Decorative Corner Brackets */}
+                                                <div className="absolute top-10 left-10 w-12 h-12 border-t-2 border-l-2 border-primary/40 rounded-tl-3xl"></div>
+                                                <div className="absolute top-10 right-10 w-12 h-12 border-t-2 border-r-2 border-primary/40 rounded-tr-3xl"></div>
+                                                <div className="absolute bottom-10 left-10 w-12 h-12 border-b-2 border-l-2 border-primary/40 rounded-bl-3xl"></div>
+                                                <div className="absolute bottom-10 right-10 w-12 h-12 border-b-2 border-r-2 border-primary/40 rounded-br-3xl"></div>
+
+                                                <div className="p-4 bg-muted/5 rounded-[32px] relative z-10">
+                                                    <img
+                                                        src={paymentRegion === 'indian' ? "/indian_qr.png" : "/international_qr.png"}
+                                                        alt="Official Payment QR"
+                                                        className="w-full h-auto aspect-square object-contain rounded-2xl shadow-sm"
+                                                    />
+                                                </div>
+
+                                                <footer className="mt-8 pt-6 border-t border-dashed border-muted/30">
+                                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">Official Verification</p>
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <div className="flex items-center gap-2 text-xs font-bold px-5 py-2.5 bg-muted/30 rounded-2xl border border-border/60 font-mono">
+                                                            <Smartphone className="w-4 h-4 text-primary" />
+                                                            <span>{paymentRegion === 'indian' ? '9052590515@ybl' : 'GAU-REF-' + Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
+                                                        </div>
+
+                                                        {paymentRegion === 'indian' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText('9052590515@ybl');
+                                                                    toast({ title: "UPI ID Copied!", description: "Paste it directly in your payment app." });
+                                                                }}
+                                                                className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary/70 transition-colors"
+                                                            >
+                                                                <Copy className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                                                                Copy UPI ID
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </footer>
+                                            </div>
+                                        </div>
+
+                                        {/* Verification Cards */}
+                                        <div className="grid sm:grid-cols-2 gap-6 mb-12 text-left">
+                                            <div className="p-8 rounded-[32px] bg-primary/5 border border-primary/10 hover:shadow-xl hover:shadow-primary/5 transition-all">
+                                                <Phone className="w-8 h-8 mb-6 text-primary" />
+                                                <h4 className="font-black text-lg mb-3">WhatsApp Receipt</h4>
+                                                <p className="text-xs font-medium text-muted-foreground leading-relaxed">Send a screenshot of payment to <span className="font-black text-foreground">+91 9052590515</span>. We will verify and send your receipt.</p>
+                                            </div>
+
+                                            <div className="p-8 rounded-[32px] bg-accent/5 border border-accent/10 hover:shadow-xl hover:shadow-accent/5 transition-all">
+                                                <Upload className="w-8 h-8 mb-6 text-primary" />
+                                                <h4 className="font-black text-lg mb-3">Instant Upload</h4>
+                                                <p className="text-xs font-medium text-muted-foreground leading-relaxed">Prefer email? Upload your proof here. Our team will process your 80G certificate within 24 hours.</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col sm:flex-row gap-4">
+                                            <Button variant="outline" onClick={() => setStep(1)} className="h-16 flex-1 rounded-[20px] font-black uppercase tracking-widest text-xs border-2">
+                                                Another Donation
+                                            </Button>
+                                            <Button variant="sacred" className="h-16 flex-[2] rounded-[20px] text-lg font-black shadow-2xl shadow-primary/20" onClick={() => window.location.href = '/'}>
+                                                Return Home
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Impact Sidebar */}
+                        <div className="lg:col-span-2 space-y-10">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                className="card-sacred p-10 overflow-hidden relative shadow-2xl"
+                            >
+                                <div className="absolute top-0 right-0 p-10 opacity-5 -mr-10 -mt-10">
+                                    <Heart className="w-48 h-48 text-primary" />
+                                </div>
+                                <h3 className="font-display text-2xl font-black text-foreground mb-8">
                                     Your Impact
                                 </h3>
-                                <ul className="space-y-4">
-                                    {[
-                                        { amount: "₹500", impact: "Feeds 1 cow for a week" },
-                                        { amount: "₹1,000", impact: "Provides veterinary care for 1 cow" },
-                                        { amount: "₹2,500", impact: "Supplies silage for 5 cows for a month" },
-                                        { amount: "₹5,000", impact: "Supports a small gaushala for a week" },
-                                        { amount: "₹10,000", impact: "Funds health checkups for 20 cows" },
-                                        { amount: "₹25,000", impact: "Supports infrastructure improvements" },
-                                    ].map((item, index) => (
-                                        <li key={index} className="flex items-start gap-3">
-                                            <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                                            <div>
-                                                <span className="font-semibold text-foreground">{item.amount}</span>
-                                                <span className="text-muted-foreground"> - {item.impact}</span>
+                                <div className="space-y-10">
+                                    <div className="relative group">
+                                        <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                                        <div className="relative p-8 bg-black dark:bg-white/10 rounded-[28px] text-white shadow-2xl">
+                                            <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/60 mb-3">Total Contribution</p>
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-5xl font-black tracking-tighter">₹{finalAmount.toLocaleString()}</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">INR</span>
                                             </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {/* Trust Card */}
-                            <div className="card-sacred p-6 bg-gradient-to-br from-secondary/10 to-accent/10">
-                                <h3 className="font-display text-xl font-bold text-foreground mb-4">
-                                    Why Donate to GauChara?
-                                </h3>
-                                <ul className="space-y-3 text-sm">
-                                    {[
-                                        "100% of donations go directly to cow welfare",
-                                        "Registered non-profit organization",
-                                        "Transparent financial reporting",
-                                        "Tax-deductible donations under 80G",
-                                        "Regular updates on your impact",
-                                    ].map((item, index) => (
-                                        <li key={index} className="flex items-center gap-2">
-                                            <Shield className="w-4 h-4 text-primary flex-shrink-0" />
-                                            <span className="text-muted-foreground">{item}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {/* Secure Badge */}
-                            <div className="flex items-center justify-center gap-4 p-4 bg-muted/50 rounded-xl">
-                                <Shield className="w-8 h-8 text-primary" />
-                                <div className="text-sm">
-                                    <div className="font-semibold text-foreground">Secure Donation</div>
-                                    <div className="text-muted-foreground">256-bit SSL Encryption</div>
+                                        </div>
+                                    </div>
+                                    <ul className="space-y-6">
+                                        {[
+                                            { amount: "₹500", impact: "Feeds 1 cow / week", sub: "Fresh fodder & hydration" },
+                                            { amount: "₹1,000", impact: "Veterinary Support", sub: "Expert medical wellness" },
+                                            { amount: "₹2,500", impact: "Cow Nutrition", sub: "Month's supply of silage" },
+                                        ].map((item, index) => (
+                                            <li key={index} className="flex items-start gap-4">
+                                                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                                                    <Check className="w-5 h-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-black text-foreground">{item.amount}</p>
+                                                    <p className="text-[11px] font-black text-primary uppercase tracking-widest">{item.impact}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-medium">{item.sub}</p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="card-sacred p-10 bg-muted/20 border-dashed border-2"
+                            >
+                                <h3 className="font-display text-xl font-black text-foreground mb-8 text-left">
+                                    Foundation Trust
+                                </h3>
+                                <div className="space-y-6">
+                                    {[
+                                        { title: "80G Verified", desc: "Savadia Foundation is 12A/80G certified", icon: Shield },
+                                        { title: "100% Direct", desc: "Zero platform cuts, direct Seva", icon: Check },
+                                        { title: "Impact Proof", desc: "Real-time updates via WhatsApp", icon: Smartphone },
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="flex gap-5 p-5 rounded-[24px] bg-white dark:bg-zinc-950 shadow-sm border border-border/50 hover:border-primary/40 transition-all">
+                                            <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center shrink-0">
+                                                <item.icon className="w-6 h-6 text-primary" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-[11px] font-black uppercase tracking-widest text-foreground">{item.title}</p>
+                                                <p className="text-[10px] text-muted-foreground font-bold mt-1">{item.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+
+                            <div className="p-8 rounded-[40px] bg-primary/5 border border-primary/10 text-center">
+                                <Shield className="w-10 h-10 text-primary/30 mx-auto mb-4" />
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-2">Sacred Commitment</p>
+                                <p className="text-[10px] text-muted-foreground/80 font-medium px-4 leading-relaxed">All donations are secured with industrial SSL encryption and handled directly by Savadia Foundation.</p>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
             </section>

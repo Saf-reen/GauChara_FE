@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import Gallery from "./pages/Gallery";
 import Services from "./pages/Services";
 import Programs from "./pages/Programs";
+import Volunteer from "./pages/Volunteer";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import ManageBlogs from "./pages/admin/ManageBlogs";
@@ -20,6 +21,11 @@ import ManageCauses from "./pages/admin/ManageCauses";
 import CauseEditor from "./pages/admin/CauseEditor";
 import ManageTestimonials from "./pages/admin/ManageTestimonials";
 import TestimonialEditor from "./pages/admin/TestimonialEditor";
+import ManageGallery from "./pages/admin/ManageGallery";
+import GalleryEditor from "./pages/admin/GalleryEditor";
+import ManageCategories from "./pages/admin/ManageCategories";
+import ManagePrograms from "./pages/admin/ManagePrograms";
+import ProgramEditor from "./pages/admin/ProgramEditor";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/layout/ScrollToTop";
 
@@ -43,6 +49,7 @@ const App = () => {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/services" element={<Services />} />
             <Route path="/programs" element={<Programs />} />
+            <Route path="/volunteer" element={<Volunteer />} />
             <Route path="/causes" element={<Index />} /> {/* Temporary redirect to home section */}
 
             {/* Admin Routes */}
@@ -57,9 +64,19 @@ const App = () => {
             <Route path="/admin/causes/new" element={<CauseEditor />} />
             <Route path="/admin/causes/edit/:id" element={<CauseEditor />} />
 
+            <Route path="/admin/categories" element={<ManageCategories />} />
+
             <Route path="/admin/testimonials" element={<ManageTestimonials />} />
             <Route path="/admin/testimonials/new" element={<TestimonialEditor />} />
             <Route path="/admin/testimonials/edit/:id" element={<TestimonialEditor />} />
+
+            <Route path="/admin/gallery" element={<ManageGallery />} />
+            <Route path="/admin/gallery/new" element={<GalleryEditor />} />
+            <Route path="/admin/gallery/edit/:id" element={<GalleryEditor />} />
+
+            <Route path="/admin/programs" element={<ManagePrograms />} />
+            <Route path="/admin/programs/new" element={<ProgramEditor />} />
+            <Route path="/admin/programs/edit/:id" element={<ProgramEditor />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

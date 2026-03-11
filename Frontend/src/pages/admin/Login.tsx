@@ -18,8 +18,23 @@ const AdminLogin = () => {
 
         try {
             const response = await authApi.adminLogin({ username, password });
-            localStorage.setItem('admin_token', response.data.token);
+
+            // Store access token (handle both 'token' and 'access' response formats)
+            const accessToken = response.data.access || response.data.token;
+            const refreshToken = response.data.refresh;
+
+            if (accessToken) {
+                localStorage.setItem('admin_token', accessToken);
+            }
+
+            // Store refresh token if provided
+            if (refreshToken) {
+                localStorage.setItem('refresh_token', refreshToken);
+            }
+
+            // Store user data
             localStorage.setItem('admin_user', JSON.stringify(response.data));
+
             toast.success('Welcome back, Admin!');
             navigate('/admin/dashboard');
         } catch (error: any) {

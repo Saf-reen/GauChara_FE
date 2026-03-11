@@ -22,7 +22,9 @@ const Causes = () => {
         setCauses(formattedCauses);
       } catch (error) {
         console.error("Failed to fetch causes:", error);
-        toast.error("Failed to load causes");
+        // Don't show error toast for network failures on public pages
+        // Just gracefully show empty state
+        setCauses([]);
       } finally {
         setIsLoading(false);
       }

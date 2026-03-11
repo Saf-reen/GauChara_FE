@@ -4,8 +4,9 @@ import { blogApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Upload, LinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const BlogEditor = () => {
     const { id } = useParams();
@@ -23,41 +24,41 @@ const BlogEditor = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(isEditing);
 
+    // File upload state
+    const [uploadType, setUploadType] = useState('url');
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
     useEffect(() => {
-        if (isEditing) {
-            fetchBlog();
-        }
+        const init = async () => {
+            if (isEditing) {
+                await fetchBlog();
+            } else {
+                setIsFetching(false);
+            }
+        };
+        init();
     }, [id]);
 
     const fetchBlog = async () => {
         try {
-            // Since we don't have a getById for blogs in the frontend API (only getBySlug), 
-            // we might need to fetch all and find, or update the API. 
-            // For now, let's assume we can fetch all and find the one we need, 
-            // or better yet, let's update the API to support getById if needed.
-            // Actually, the backend supports getBySlug. 
-            // But the edit link uses ID. Let's fetch all and find by ID for now to be safe,
-            // or we can update the backend to support getById.
-            // The backend route is router.get('/:slug', ...).
-            // Wait, the backend route `router.get('/:slug')` searches by slug.
-            // If I pass an ID, it won't find it unless the slug IS the ID (unlikely).
-            // I should update the backend to support getting by ID or just use the slug in the URL.
-            // But the ManageBlogs page uses ID for the edit link.
-            // Let's stick to ID for editing. I need to update the backend to support fetching by ID.
-            // OR, I can just fetch all blogs here and find the one with the matching ID.
-            // That's inefficient but works for small numbers.
-            // Let's try fetching all for now.
-            const response = await blogApi.getAll();
-            const blog = response.data.find((b: any) => b._id === id);
+            if (!id) return;
+            const response = await blogApi.getById(id);
+            const blog = response.data;
             if (blog) {
                 setFormData({
                     title: blog.title,
                     slug: blog.slug,
                     content: blog.content,
                     excerpt: blog.excerpt,
-                    featuredImage: blog.featuredImage,
-                    author: blog.author || 'Admin',
+                    featuredImage: blog.featured_image_url || blog.featuredImage,
+                    author: typeof blog.author === 'object' ? blog.author.username : (blog.author || 'Admin'),
                 });
+
+                if (blog.featured_image_url || blog.featuredImage) {
+                    setUploadType('url');
+                    setImagePreview(blog.featured_image_url || blog.featuredImage);
+                }
             } else {
                 toast.error('Blog not found');
                 navigate('/admin/blogs');
@@ -82,16 +83,46 @@ const BlogEditor = () => {
         }
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
+        let payload: any;
+
+        if (uploadType === 'file' && imageFile) {
+            const data = new FormData();
+            data.append('title', formData.title);
+            data.append('slug', formData.slug);
+            data.append('content', formData.content);
+            data.append('excerpt', formData.excerpt);
+            data.append('author', formData.author);
+            data.append('image', imageFile);
+            payload = data;
+        } else {
+            payload = {
+                ...formData,
+                featured_image_url: formData.featuredImage,
+            };
+        }
+
         try {
             if (isEditing) {
-                await blogApi.update(id!, formData);
+                await blogApi.update(id!, payload);
                 toast.success('Blog updated successfully');
             } else {
-                await blogApi.create(formData);
+                await blogApi.create(payload);
                 toast.success('Blog created successfully');
             }
             navigate('/admin/blogs');
@@ -139,6 +170,7 @@ const BlogEditor = () => {
                                     required
                                 />
                             </div>
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Slug</label>
                                 <Input
@@ -152,14 +184,62 @@ const BlogEditor = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Featured Image URL</label>
-                            <Input
-                                name="featuredImage"
-                                value={formData.featuredImage}
-                                onChange={handleChange}
-                                placeholder="https://example.com/image.jpg"
-                                required
-                            />
+                            <label className="text-sm font-medium">Featured Image</label>
+                            <Tabs value={uploadType} onValueChange={setUploadType} className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="url">Image URL</TabsTrigger>
+                                    <TabsTrigger value="file">Upload File</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="url" className="mt-4">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                                            <Input
+                                                name="featuredImage"
+                                                value={formData.featuredImage}
+                                                onChange={(e) => {
+                                                    handleChange(e);
+                                                    setImagePreview(e.target.value);
+                                                }}
+                                                placeholder="https://example.com/image.jpg"
+                                            />
+                                        </div>
+                                        {imagePreview && uploadType === 'url' && (
+                                            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border">
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="file" className="mt-4">
+                                    <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed rounded-lg hover:bg-muted/50 transition-colors">
+                                        {imagePreview && uploadType === 'file' ? (
+                                            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center text-muted-foreground py-8">
+                                                <Upload className="w-12 h-12 mb-2" />
+                                                <span>Click to upload image</span>
+                                            </div>
+                                        )}
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className="cursor-pointer"
+                                        />
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
                         </div>
 
                         <div className="space-y-2">
@@ -206,8 +286,8 @@ const BlogEditor = () => {
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

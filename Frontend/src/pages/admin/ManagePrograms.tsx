@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { programApi } from '@/lib/api';
 import { getImageUrl } from '@/lib/utils';
-import { causeApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Loader2, ArrowLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ArrowLeft, Eye, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import {
     Table,
@@ -31,25 +31,23 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Copy, Check, Eye } from 'lucide-react';
 
-const ManageCauses = () => {
-    const [causes, setCauses] = useState<any[]>([]);
+const ManagePrograms = () => {
+    const [programs, setPrograms] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedCause, setSelectedCause] = useState<any | null>(null);
+    const [selectedProgram, setSelectedProgram] = useState<any | null>(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
     useEffect(() => {
-        fetchCauses();
+        fetchPrograms();
     }, []);
 
-    const fetchCauses = async () => {
+    const fetchPrograms = async () => {
         try {
-            const response = await causeApi.getAll();
-            setCauses(response.data);
+            const response = await programApi.getAll();
+            setPrograms(response.data);
         } catch (error) {
-            toast.error('Failed to fetch causes');
+            toast.error('Failed to fetch programs');
         } finally {
             setIsLoading(false);
         }
@@ -57,16 +55,16 @@ const ManageCauses = () => {
 
     const handleDelete = async (id: string | number) => {
         try {
-            await causeApi.delete(String(id));
-            setCauses(causes.filter(cause => (cause.id || cause._id) !== id));
-            toast.success('Cause deleted successfully');
+            await programApi.delete(id);
+            setPrograms(programs.filter(program => (program.id) !== id));
+            toast.success('Program deleted successfully');
         } catch (error) {
-            toast.error('Failed to delete cause');
+            toast.error('Failed to delete program');
         }
     };
 
-    const openViewModal = (cause: any) => {
-        setSelectedCause(cause);
+    const openViewModal = (program: any) => {
+        setSelectedProgram(program);
         setIsViewOpen(true);
     };
 
@@ -81,12 +79,12 @@ const ManageCauses = () => {
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-3xl font-bold">Manage Causes</h1>
-                            <p className="text-muted-foreground">Create, edit, and remove donation causes</p>
+                            <h1 className="text-3xl font-bold">Manage Programs</h1>
+                            <p className="text-muted-foreground">Create, edit, and remove programs and events</p>
                         </div>
                     </div>
                     <Button asChild>
-                        <Link to="/admin/causes/new">
+                        <Link to="/admin/programs/new">
                             <Plus className="w-4 h-4 mr-2" />
                             Create New
                         </Link>
@@ -102,42 +100,46 @@ const ManageCauses = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead>Image</TableHead>
                                     <TableHead>Title</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Goal Amount</TableHead>
-                                    <TableHead>Featured</TableHead>
+                                    <TableHead>Description</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {causes.length === 0 ? (
+                                {programs.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
-                                            No causes found. Create your first one!
+                                            No programs found. Create your first one!
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    causes.map((cause) => (
-                                        <TableRow key={cause.id || cause._id} className="cursor-pointer hover:bg-muted/50" onClick={() => openViewModal(cause)}>
-                                            <TableCell className="font-medium max-w-[200px] truncate">{cause.title}</TableCell>
+                                    programs.map((program) => (
+                                        <TableRow key={program.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openViewModal(program)}>
                                             <TableCell>
-                                                <Badge variant="secondary">{cause.category}</Badge>
+                                                <div className="w-16 h-10 rounded overflow-hidden bg-muted">
+                                                    <img
+                                                        src={getImageUrl(program.file_image || program.url_image)}
+                                                        alt={program.title}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null;
+                                                            e.currentTarget.src = '/placeholder.svg';
+                                                        }}
+                                                    />
+                                                </div>
                                             </TableCell>
-                                            <TableCell>${Number(cause.goal_amount).toLocaleString()}</TableCell>
-                                            <TableCell>
-                                                {cause.featured ? (
-                                                    <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/25 border-green-500/20">Featured</Badge>
-                                                ) : (
-                                                    <span className="text-muted-foreground text-sm">-</span>
-                                                )}
+                                            <TableCell className="font-medium">{program.title}</TableCell>
+                                            <TableCell className="max-w-md truncate text-muted-foreground">
+                                                {program.description}
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                                    <Button variant="ghost" size="icon" onClick={() => openViewModal(cause)}>
+                                                    <Button variant="ghost" size="icon" onClick={() => openViewModal(program)}>
                                                         <Eye className="w-4 h-4 text-muted-foreground" />
                                                     </Button>
                                                     <Button variant="ghost" size="icon" asChild>
-                                                        <Link to={`/admin/causes/edit/${cause.id || cause._id}`}>
+                                                        <Link to={`/admin/programs/edit/${program.id}`}>
                                                             <Pencil className="w-4 h-4 text-blue-500" />
                                                         </Link>
                                                     </Button>
@@ -152,12 +154,12 @@ const ManageCauses = () => {
                                                             <AlertDialogHeader>
                                                                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    This action cannot be undone. This will permanently delete the cause.
+                                                                    This action cannot be undone. This will permanently delete the program.
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleDelete(cause.id || cause._id)} className="bg-red-500 hover:bg-red-600">
+                                                                <AlertDialogAction onClick={() => handleDelete(program.id)} className="bg-red-500 hover:bg-red-600">
                                                                     Delete
                                                                 </AlertDialogAction>
                                                             </AlertDialogFooter>
@@ -178,36 +180,28 @@ const ManageCauses = () => {
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Cause Details</DialogTitle>
+                        <DialogTitle>Program Details</DialogTitle>
                         <DialogDescription>
-                            Full details for "{selectedCause?.title}"
+                            Full details for "{selectedProgram?.title}"
                         </DialogDescription>
                     </DialogHeader>
 
-                    {selectedCause && (
+                    {selectedProgram && (
                         <div className="space-y-6 pt-4">
                             {/* Header Info */}
-                            <div className="flex flex-col md:flex-row gap-4 justify-between items-start border-b pb-4">
+                            <div className="flex justify-between items-start border-b pb-4">
                                 <div>
-                                    <h3 className="text-xl font-bold">{selectedCause.title}</h3>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <Badge variant="outline">{selectedCause.category}</Badge>
-                                        {selectedCause.featured && <Badge className="bg-green-500 text-white border-none">Featured</Badge>}
-                                        <span className="text-xs text-muted-foreground ml-2">ID: {selectedCause.id || selectedCause._id}</span>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-muted-foreground">Goal Amount</p>
-                                    <p className="text-2xl font-bold text-primary">${Number(selectedCause.goal_amount).toLocaleString()}</p>
+                                    <h3 className="text-xl font-bold">{selectedProgram.title}</h3>
+                                    <span className="text-xs text-muted-foreground mt-1 block">ID: {selectedProgram.id}</span>
                                 </div>
                             </div>
 
                             {/* Image */}
-                            {(selectedCause.image || selectedCause.image_file || selectedCause.image_url) && (
+                            {(selectedProgram.file_image || selectedProgram.url_image) && (
                                 <div className="rounded-xl overflow-hidden border bg-muted w-full aspect-video">
                                     <img
-                                        src={getImageUrl(selectedCause.image_file || selectedCause.image || selectedCause.image_url)}
-                                        alt={selectedCause.title}
+                                        src={getImageUrl(selectedProgram.file_image || selectedProgram.url_image)}
+                                        alt={selectedProgram.title}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
                                             e.currentTarget.src = '/placeholder.svg';
@@ -216,23 +210,11 @@ const ManageCauses = () => {
                                 </div>
                             )}
 
-                            {/* Descriptions */}
-                            <div className="space-y-4">
-                                <div>
-                                    <h4 className="font-semibold mb-1">Short Description</h4>
-                                    <p className="text-muted-foreground bg-muted/30 p-3 rounded-md text-sm">
-                                        {selectedCause.short_description || "No short description provided."}
-                                    </p>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold mb-1">Full Content</h4>
-                                    <div className="prose prose-sm max-w-none bg-muted/30 p-4 rounded-md">
-                                        {selectedCause.full_content ? (
-                                            <div className="whitespace-pre-wrap">{selectedCause.full_content}</div>
-                                        ) : (
-                                            <p className="text-muted-foreground italic">No content available.</p>
-                                        )}
-                                    </div>
+                            {/* Description */}
+                            <div>
+                                <h4 className="font-semibold mb-2">Description</h4>
+                                <div className="bg-muted/30 p-4 rounded-md text-sm whitespace-pre-wrap">
+                                    {selectedProgram.description || "No description provided."}
                                 </div>
                             </div>
                         </div>
@@ -243,4 +225,4 @@ const ManageCauses = () => {
     );
 };
 
-export default ManageCauses;
+export default ManagePrograms;

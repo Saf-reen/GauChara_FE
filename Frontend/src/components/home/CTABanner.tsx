@@ -41,7 +41,7 @@ const CTABanner = () => {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
-            <Link to="/contact">
+            <Link to="/volunteer">
               <Button className="border-2 border-white text-white hover:bg-white 
                                hover:text-primary text-lg px-8 py-6 font-semibold 
                                rounded-full bg-transparent inline-flex items-center gap-2

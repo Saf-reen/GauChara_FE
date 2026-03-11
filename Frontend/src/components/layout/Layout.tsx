@@ -15,7 +15,8 @@ const Layout = ({ children }: LayoutProps) => {
       <PartnerFloatingImage />
       <main className="flex-grow">{children}</main>
       <Footer />
-      <Chatbot />
+      {/* Temporarily disabled to debug */}
+      {/* <Chatbot /> */}
     </div>
   );
 };

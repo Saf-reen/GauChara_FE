@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { getImageUrl } from '@/lib/utils';
 import { testimonialApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload } from "lucide-react";
 
 const TestimonialEditor = () => {
     const { id } = useParams();
@@ -26,6 +29,9 @@ const TestimonialEditor = () => {
         image: '',
         rating: '5',
     });
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [uploadType, setUploadType] = useState<'url' | 'file'>('url');
+    const [previewUrl, setPreviewUrl] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(isEditing);
 
@@ -36,24 +42,57 @@ const TestimonialEditor = () => {
     }, [id]);
 
     const fetchTestimonial = async () => {
+        if (!id) return;
+
         try {
-            // Similar to blogs, we fetch all and find by ID since we don't have getById for testimonials yet
-            // Or we can assume we fetch all.
-            const response = await testimonialApi.getAll();
-            const testimonial = response.data.find((t: any) => t._id === id);
+            // First try to get by ID directly
+            const response = await testimonialApi.getById(id);
+            const testimonial = response.data;
             if (testimonial) {
                 setFormData({
                     name: testimonial.name,
                     role: testimonial.role,
                     content: testimonial.content,
                     image: testimonial.image,
-                    rating: testimonial.rating.toString(),
+                    rating: testimonial.rating ? testimonial.rating.toString() : '5',
                 });
+                if (testimonial.image) {
+                    setPreviewUrl(getImageUrl(testimonial.image));
+                }
+                setIsFetching(false); // Stop loading here
+                return;
+            }
+        } catch (error) {
+            console.log("Direct fetch failed, falling back to finding in list");
+        }
+
+        // Fallback: fetch all and find
+        try {
+            const response = await testimonialApi.getAll();
+            // Check if response.data is an array, if not it might be nested
+            const data = Array.isArray(response.data) ? response.data : [];
+
+            const testimonial = data.find((t: any) =>
+                String(t._id) === String(id) || String(t.id) === String(id)
+            );
+
+            if (testimonial) {
+                setFormData({
+                    name: testimonial.name,
+                    role: testimonial.role,
+                    content: testimonial.content,
+                    image: testimonial.image,
+                    rating: testimonial.rating ? testimonial.rating.toString() : '5',
+                });
+                if (testimonial.image) {
+                    setPreviewUrl(getImageUrl(testimonial.image));
+                }
             } else {
                 toast.error('Testimonial not found');
                 navigate('/admin/testimonials');
             }
         } catch (error) {
+            console.error(error);
             toast.error('Failed to fetch testimonial details');
         } finally {
             setIsFetching(false);
@@ -69,15 +108,38 @@ const TestimonialEditor = () => {
         setFormData(prev => ({ ...prev, rating: value }));
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const payload = {
-                ...formData,
-                rating: Number(formData.rating),
-            };
+            let payload: any;
+
+            if (imageFile) {
+                const data = new FormData();
+                data.append('name', formData.name);
+                data.append('role', formData.role);
+                data.append('content', formData.content);
+                data.append('rating', formData.rating);
+                data.append('image', imageFile);
+                payload = data;
+            } else {
+                const { image, ...rest } = formData;
+                payload = {
+                    ...rest,
+                    image_url: image || '',
+                    rating: Number(formData.rating),
+                };
+            }
 
             if (isEditing) {
                 await testimonialApi.update(id!, payload);
@@ -160,14 +222,60 @@ const TestimonialEditor = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Image URL</label>
-                                <Input
-                                    name="image"
-                                    value={formData.image}
-                                    onChange={handleChange}
-                                    placeholder="https://example.com/photo.jpg"
-                                    required
-                                />
+                                <label className="text-sm font-medium">Image</label>
+                                <Tabs value={uploadType} onValueChange={(val) => setUploadType(val as 'url' | 'file')}>
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger value="url">Image URL</TabsTrigger>
+                                        <TabsTrigger value="file">Upload File</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="url" className="mt-2">
+                                        <div className="flex gap-2">
+                                            <Input
+                                                name="image"
+                                                value={formData.image}
+                                                onChange={(e) => {
+                                                    handleChange(e);
+                                                    setPreviewUrl(e.target.value);
+                                                }}
+                                                placeholder="https://example.com/photo.jpg"
+                                            />
+                                        </div>
+                                    </TabsContent>
+                                    <TabsContent value="file" className="mt-2">
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                id="image-upload"
+                                                type="file"
+                                                onChange={handleFileChange}
+                                                className="hidden"
+                                                accept="image/*"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => document.getElementById('image-upload')?.click()}
+                                                className="w-full"
+                                            >
+                                                <Upload className="w-4 h-4 mr-2" />
+                                                Choose Image
+                                            </Button>
+                                            {imageFile && <span className="text-sm text-muted-foreground">{imageFile.name}</span>}
+                                        </div>
+                                    </TabsContent>
+                                </Tabs>
+
+                                {previewUrl && (
+                                    <div className="mt-4 rounded-lg overflow-hidden border bg-muted w-24 h-24">
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = '/placeholder.svg';
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 

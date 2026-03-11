@@ -15,18 +15,33 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
+        setIsLoading(true);
         const response = await blogApi.getAll();
+        console.log("Blog API Response:", response.data);
+
         // Map backend data to frontend structure if needed
         const formattedPosts = response.data.map((post: any) => ({
           ...post,
-          id: post._id || post.id,
-          image: post.featuredImage || post.image,
-          date: new Date(post.createdAt).toLocaleDateString('en-US', {
+          id: post.id || post._id,
+          // Handle image: check for featured_image_url, featuredImage, featured_image, or fall back to placeholder
+          image: post.featured_image ? (post.featured_image.startsWith('http') ? post.featured_image : `http://127.0.0.1:8000${post.featured_image}`)
+            : post.featured_image_url ? (post.featured_image_url.startsWith('http') ? post.featured_image_url : `http://127.0.0.1:8000${post.featured_image_url}`)
+              : '/placeholder.svg',
+
+          title: post.title || "Untitled Post",
+          excerpt: post.excerpt || "No excerpt available",
+
+          // Handle Date
+          date: new Date(post.created_at || post.createdAt || Date.now()).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
           }),
-          category: post.category || 'General'
+
+          category: post.category || 'General',
+
+          // Handle Author: it can be an object or a string or null
+          author: post.author ? (typeof post.author === 'object' ? (post.author.username || 'Admin') : post.author) : 'Admin'
         }));
         setBlogPosts(formattedPosts);
       } catch (error) {
@@ -86,10 +101,6 @@ const Blog = () => {
                     <div className="p-8">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                         <span className="flex items-center gap-1">
-                          <Tag className="w-4 h-4" />
-                          {blogPosts[0].category}
-                        </span>
-                        <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {blogPosts[0].date}
                         </span>
@@ -136,11 +147,6 @@ const Blog = () => {
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-secondary/90 text-secondary-foreground text-xs font-medium rounded-full">
-                          {post.category}
-                        </span>
-                      </div>
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">

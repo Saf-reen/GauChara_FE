@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { causeApi } from '@/lib/api';
+import { getImageUrl } from '@/lib/utils';
+import { causeApi, causeCategoryApi } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload } from "lucide-react";
 
 const CauseEditor = () => {
     const { id } = useParams();
@@ -15,17 +19,25 @@ const CauseEditor = () => {
 
     const [formData, setFormData] = useState({
         title: '',
-        description: '',
-        content: '',
+        short_description: '',
+        full_content: '',
         image: '',
-        goalAmount: '',
+        goal_amount: '',
         category: '',
         featured: false,
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(isEditing);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [newCategoryName, setNewCategoryName] = useState('');
+
+    // Image upload state
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [uploadType, setUploadType] = useState<'url' | 'file'>('url');
+    const [previewUrl, setPreviewUrl] = useState<string>('');
 
     useEffect(() => {
+        fetchCategories();
         if (isEditing) {
             fetchCause();
         }
@@ -36,18 +48,61 @@ const CauseEditor = () => {
             const response = await causeApi.getById(id!);
             setFormData({
                 title: response.data.title,
-                description: response.data.description,
-                content: response.data.content,
+                short_description: response.data.short_description,
+                full_content: response.data.full_content,
                 image: response.data.image,
-                goalAmount: response.data.goalAmount.toString(),
+                goal_amount: response.data.goal_amount.toString(),
                 category: response.data.category,
                 featured: response.data.featured,
             });
+            if (response.data.image || response.data.image_file) {
+                setPreviewUrl(getImageUrl(response.data.image_file || response.data.image || response.data.image_url));
+            }
         } catch (error) {
             toast.error('Failed to fetch cause details');
             navigate('/admin/causes');
         } finally {
             setIsFetching(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const res = await causeCategoryApi.getAll();
+            setCategories(res.data);
+        } catch (error) {
+            console.error("Failed to fetch categories");
+        }
+    };
+
+    const handleAddCategory = async () => {
+        if (!newCategoryName.trim()) return;
+        try {
+            const res = await causeCategoryApi.create({ name: newCategoryName });
+            setCategories(prev => [...prev, res.data]);
+            setFormData(prev => ({ ...prev, category: res.data.name }));
+            setNewCategoryName('');
+            toast.success("Category added!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to add category");
+        }
+    };
+
+    const handleDeleteCategory = async (catId: number | string, catName: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.confirm(`Delete category "${catName}"?`)) {
+            try {
+                await causeCategoryApi.delete(catId);
+                setCategories(prev => prev.filter(c => (c.id || c._id) !== catId));
+                if (formData.category === catName) {
+                    setFormData(prev => ({ ...prev, category: '' }));
+                }
+                toast.success("Category deleted");
+            } catch (error) {
+                toast.error("Failed to delete category");
+            }
         }
     };
 
@@ -60,15 +115,38 @@ const CauseEditor = () => {
         setFormData(prev => ({ ...prev, featured: checked }));
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const payload = {
-                ...formData,
-                goalAmount: Number(formData.goalAmount),
-            };
+            let payload: any;
+
+            if (imageFile) {
+                const data = new FormData();
+                data.append('title', formData.title);
+                data.append('short_description', formData.short_description);
+                data.append('full_content', formData.full_content);
+                data.append('goal_amount', formData.goal_amount); // Backend should parse this
+                data.append('category', formData.category);
+                data.append('featured', String(formData.featured));
+                data.append('image', imageFile);
+                payload = data;
+            } else {
+                payload = {
+                    ...formData,
+                    goal_amount: Number(formData.goal_amount),
+                };
+            }
 
             if (isEditing) {
                 await causeApi.update(id!, payload);
@@ -124,13 +202,63 @@ const CauseEditor = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Category</label>
-                                <Input
-                                    name="category"
+                                <Select
                                     value={formData.category}
-                                    onChange={handleChange}
-                                    placeholder="e.g., Education, Health, Food"
-                                    required
-                                />
+                                    onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <div className="p-2 border-b mb-2">
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    placeholder="New category..."
+                                                    value={newCategoryName}
+                                                    onChange={(e) => {
+                                                        e.stopPropagation();
+                                                        setNewCategoryName(e.target.value);
+                                                    }}
+                                                    className="h-8 text-sm"
+                                                    onKeyDown={(e) => {
+                                                        e.stopPropagation();
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            handleAddCategory();
+                                                        }
+                                                    }}
+                                                />
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="h-8 px-2"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handleAddCategory();
+                                                    }}
+                                                    disabled={!newCategoryName.trim()}
+                                                >
+                                                    <Plus className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        {categories.map((cat) => (
+                                            <SelectItem key={cat.id || cat._id} value={cat.name} className="group pr-8 relative">
+                                                <div className="flex items-center justify-between w-full min-w-[200px]">
+                                                    <span>{cat.name}</span>
+                                                    <div
+                                                        role="button"
+                                                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-destructive/10 rounded-md transition-all z-50 cursor-pointer"
+                                                        onClick={(e) => handleDeleteCategory(cat.id || cat._id, cat.name, e)}
+                                                        onPointerDown={(e) => e.stopPropagation()}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                                    </div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 
@@ -138,9 +266,9 @@ const CauseEditor = () => {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Goal Amount ($)</label>
                                 <Input
-                                    name="goalAmount"
+                                    name="goal_amount"
                                     type="number"
-                                    value={formData.goalAmount}
+                                    value={formData.goal_amount}
                                     onChange={handleChange}
                                     placeholder="5000"
                                     required
@@ -156,21 +284,67 @@ const CauseEditor = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Image URL</label>
-                            <Input
-                                name="image"
-                                value={formData.image}
-                                onChange={handleChange}
-                                placeholder="https://example.com/image.jpg"
-                                required
-                            />
+                            <label className="text-sm font-medium">Cause Image</label>
+                            <Tabs value={uploadType} onValueChange={(val) => setUploadType(val as 'url' | 'file')}>
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="url">Image URL</TabsTrigger>
+                                    <TabsTrigger value="file">Upload File</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="url" className="mt-2">
+                                    <div className="flex gap-2">
+                                        <Input
+                                            name="image"
+                                            value={formData.image}
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                setPreviewUrl(e.target.value);
+                                            }}
+                                            placeholder="https://example.com/cause.jpg"
+                                        />
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="file" className="mt-2">
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            id="cause-image-upload"
+                                            type="file"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            accept="image/*"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => document.getElementById('cause-image-upload')?.click()}
+                                            className="w-full"
+                                        >
+                                            <Upload className="w-4 h-4 mr-2" />
+                                            Choose Image
+                                        </Button>
+                                        {imageFile && <span className="text-sm text-muted-foreground">{imageFile.name}</span>}
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+
+                            {previewUrl && (
+                                <div className="mt-4 rounded-lg overflow-hidden border bg-muted w-full aspect-video md:w-64 md:h-40 relative">
+                                    <img
+                                        src={previewUrl}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.src = '/placeholder.svg';
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Short Description</label>
                             <Textarea
-                                name="description"
-                                value={formData.description}
+                                name="short_description"
+                                value={formData.short_description}
                                 onChange={handleChange}
                                 placeholder="Brief description for cards"
                                 rows={3}
@@ -181,8 +355,8 @@ const CauseEditor = () => {
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Full Content</label>
                             <Textarea
-                                name="content"
-                                value={formData.content}
+                                name="full_content"
+                                value={formData.full_content}
                                 onChange={handleChange}
                                 placeholder="Detailed explanation of the cause..."
                                 className="min-h-[200px]"

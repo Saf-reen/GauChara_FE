@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { authApi, blogApi, causeApi, testimonialApi } from '@/lib/api';
+import { clearAuthTokens } from '@/lib/axios';
 import {
     LayoutDashboard,
     FileText,
@@ -8,7 +10,8 @@ import {
     LogOut,
     Plus,
     Settings,
-    Users
+    Users,
+    Calendar,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -16,27 +19,58 @@ import { toast } from 'sonner';
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [admin, setAdmin] = useState<any>(null);
+    const [counts, setCounts] = useState({
+        blogs: 0,
+        causes: 0,
+        testimonials: 0
+    });
 
     useEffect(() => {
+        const fetchCounts = async () => {
+            try {
+                const [blogsRes, causesRes, testimonialsRes] = await Promise.all([
+                    blogApi.getAll(),
+                    causeApi.getAll(),
+                    testimonialApi.getAll()
+                ]);
+                setCounts({
+                    blogs: blogsRes.data.length || 0,
+                    causes: causesRes.data.length || 0,
+                    testimonials: testimonialsRes.data.length || 0
+                });
+            } catch (error) {
+                console.error("Failed to fetch dashboard stats", error);
+            }
+        };
+
         const user = localStorage.getItem('admin_user');
         if (!user) {
             navigate('/admin-login');
             return;
         }
         setAdmin(JSON.parse(user));
+
+        // Fetch counts only if authenticated
+        fetchCounts();
     }, [navigate]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_user');
-        toast.success('Logged out successfully');
-        navigate('/admin-login');
+    const handleLogout = async () => {
+        try {
+            await authApi.logout();
+        } catch (error) {
+            console.error('Logout failed:', error);
+        } finally {
+            clearAuthTokens();
+            localStorage.removeItem('admin_user');
+            toast.success('Logged out successfully');
+            navigate('/admin-login');
+        }
     };
 
     const stats = [
-        { label: 'Total Blogs', value: '12', icon: FileText, color: 'bg-blue-500' },
-        { label: 'Active Causes', value: '4', icon: Heart, color: 'bg-rose-500' },
-        { label: 'Testimonials', value: '8', icon: MessageSquare, color: 'bg-amber-500' },
+        { label: 'Total Blogs', value: counts.blogs.toString(), icon: FileText, color: 'bg-blue-500' },
+        { label: 'Total Causes', value: counts.causes.toString(), icon: Heart, color: 'bg-rose-500' },
+        { label: 'Testimonials', value: counts.testimonials.toString(), icon: MessageSquare, color: 'bg-amber-500' },
         { label: 'Total Donors', value: '150+', icon: Users, color: 'bg-emerald-500' },
     ];
 
@@ -60,6 +94,7 @@ const AdminDashboard = () => {
                         <FileText className="w-5 h-5" />
                         Manage Blogs
                     </Link>
+
                     <Link to="/admin/causes" className="flex items-center gap-3 px-4 py-2 hover:bg-muted rounded-lg transition-colors">
                         <Heart className="w-5 h-5" />
                         Manage Causes
@@ -67,6 +102,29 @@ const AdminDashboard = () => {
                     <Link to="/admin/testimonials" className="flex items-center gap-3 px-4 py-2 hover:bg-muted rounded-lg transition-colors">
                         <MessageSquare className="w-5 h-5" />
                         Testimonials
+                    </Link>
+                    <Link to="/admin/gallery" className="flex items-center gap-3 px-4 py-2 hover:bg-muted rounded-lg transition-colors">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-5 h-5"
+                        >
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                            <circle cx="9" cy="9" r="2" />
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                        </svg>
+                        Gallery
+                    </Link>
+                    <Link to="/admin/programs" className="flex items-center gap-3 px-4 py-2 hover:bg-muted rounded-lg transition-colors">
+                        <Calendar className="w-5 h-5" />
+                        Programs
                     </Link>
                 </nav>
 
@@ -145,7 +203,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             </main>
-        </div>
+        </div >
     );
 };
 

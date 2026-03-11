@@ -12,6 +12,7 @@ import { z } from "zod";
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  phone: z.string().trim().regex(/^[0-9]{10,15}$/, "Phone number must be 10-15 digits"),
   subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
   message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
 });
@@ -24,6 +25,7 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     subject: "",
     message: "",
   });
@@ -57,23 +59,24 @@ const Contact = () => {
 
     try {
       // Try to submit to backend API
-      const response = await contactApi.submit({
+      const response = await contactApi.create({
         name: result.data.name,
         email: result.data.email,
+        phone: result.data.phone,
         subject: result.data.subject,
         message: result.data.message,
       });
 
-      if (response.data.success) {
+      if (response.status === 200 || response.status === 201) {
         toast({
           title: "Message Sent Successfully!",
-          description: response.data.message || "Thank you for contacting us. We'll get back to you soon.",
+          description: "Thank you for contacting us. We'll get back to you soon.",
         });
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       } else {
         toast({
           title: "Error",
-          description: response.data.message || "Failed to send message. Please try again.",
+          description: "Failed to send message. Please try again.",
           variant: "destructive",
         });
       }
@@ -84,7 +87,7 @@ const Contact = () => {
           title: "Message Sent Successfully!",
           description: "Thank you for contacting us. We'll get back to you soon.",
         });
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       } else {
         toast({
           title: "Error",
@@ -156,19 +159,36 @@ const Contact = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
-                    Subject *
-                  </label>
-                  <Input
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="How can we help you?"
-                    className={errors.subject ? "border-destructive" : ""}
-                  />
-                  {errors.subject && <p className="text-destructive text-sm mt-1">{errors.subject}</p>}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+                      Phone Number *
+                    </label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+91 9876543210"
+                      className={errors.phone ? "border-destructive" : ""}
+                    />
+                    {errors.phone && <p className="text-destructive text-sm mt-1">{errors.phone}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+                      Subject *
+                    </label>
+                    <Input
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder="How can we help you?"
+                      className={errors.subject ? "border-destructive" : ""}
+                    />
+                    {errors.subject && <p className="text-destructive text-sm mt-1">{errors.subject}</p>}
+                  </div>
                 </div>
 
                 <div>
@@ -271,7 +291,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
-    </Layout>
+    </Layout >
   );
 };
 
