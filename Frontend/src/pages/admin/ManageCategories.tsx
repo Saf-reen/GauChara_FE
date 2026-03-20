@@ -137,14 +137,15 @@ const ManageCategories = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Node Designation</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">URI Identifier (Slug)</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Matrix Controls</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Node Designation</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">URI Identifier (Slug)</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Matrix Controls</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {categories.length === 0 ? (
                                 <TableRow>
@@ -202,7 +203,8 @@ const ManageCategories = () => {
                                 ))
                             )}
                         </TableBody>
-                    </Table>
+                        </Table>
+                    </div>
                 )}
             </div>
 

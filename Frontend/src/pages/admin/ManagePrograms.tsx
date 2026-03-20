@@ -31,6 +31,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import AdminLayout from '@/components/layout/AdminLayout';
 
 const ManagePrograms = () => {
@@ -57,7 +58,7 @@ const ManagePrograms = () => {
     const handleDelete = async (id: string | number) => {
         try {
             await programApi.delete(id);
-            setPrograms(programs.filter(program => (program.id) !== id));
+            setPrograms(programs.filter(program => (program.id || program._id) !== id));
             toast.success('Program deleted successfully');
         } catch (error: any) {
             toast.error(error.backendError || 'Failed to delete program');
@@ -90,15 +91,16 @@ const ManagePrograms = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Iconic Image</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Initiative Title</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Briefing</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Directorate</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground text-foreground">Iconic Image</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground text-foreground">Initiative Title</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground text-foreground">Briefing</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground text-foreground">Directorate</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {programs.length === 0 ? (
                                 <TableRow>
@@ -108,7 +110,7 @@ const ManagePrograms = () => {
                                 </TableRow>
                             ) : (
                                 programs.map((program) => (
-                                    <TableRow key={program.id} className="cursor-pointer hover:bg-muted/10 transition-colors group px-6 border-b border-border/30" onClick={() => openViewModal(program)}>
+                                    <TableRow key={program.id || program._id} className="cursor-pointer hover:bg-muted/10 transition-colors group px-6 border-b border-border/30" onClick={() => openViewModal(program)}>
                                         <TableCell className="pl-10 py-6">
                                             <div className="w-20 h-14 rounded-2xl overflow-hidden bg-muted group-hover:scale-105 transition-transform duration-500 shadow-sm border border-border/50">
                                                 <img
@@ -132,7 +134,7 @@ const ManagePrograms = () => {
                                                     <Eye className="w-4 h-4 text-muted-foreground group-hover/btn:text-primary transition-colors" />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" className="rounded-xl hover:bg-blue-50 group/btn" asChild>
-                                                    <Link to={`/admin/programs/edit/${program.id}`}>
+                                                    <Link to={`/admin/programs/edit/${program.id || program._id}`}>
                                                         <Pencil className="w-4 h-4 text-blue-400 group-hover/btn:text-blue-600 transition-colors" />
                                                     </Link>
                                                 </Button>
@@ -152,7 +154,7 @@ const ManagePrograms = () => {
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter className="pt-6">
                                                             <AlertDialogCancel className="rounded-2xl h-12 font-bold px-8 border-2">Keep Initiative</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDelete(program.id)} className="bg-red-500 hover:bg-red-600 rounded-2xl h-12 font-bold px-8 shadow-xl shadow-red-500/20 border-none">
+                                                            <AlertDialogAction onClick={() => handleDelete(program.id || program._id)} className="bg-red-500 hover:bg-red-600 rounded-2xl h-12 font-bold px-8 shadow-xl shadow-red-500/20 border-none">
                                                                 Archive Permanently
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>
@@ -165,19 +167,20 @@ const ManagePrograms = () => {
                             )}
                         </TableBody>
                     </Table>
+                </div>
                 )}
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] border-none shadow-2xl p-0 overflow-hidden">
-                    <DialogHeader className="bg-primary/5 p-12 pb-8 border-b border-primary/10">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
+                    <DialogHeader className="bg-primary/5 p-6 pb-2 border-b border-primary/10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-primary/10 rounded-2xl">
                                 <LayoutGrid className="w-8 h-8 text-primary" />
                             </div>
                             <div>
-                                <DialogTitle className="text-3xl font-black italic tracking-tighter">Initiative Blueprint</DialogTitle>
-                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-6">
+                                <DialogTitle className="text-3xl font-black italic tracking-tighter text-primary">Initiative Blueprint</DialogTitle>
+                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-4">
                                     Deep-dive analysis of operational initiatives.
                                 </DialogDescription>
                             </div>
@@ -185,41 +188,41 @@ const ManagePrograms = () => {
                     </DialogHeader>
 
                     {selectedProgram && (
-                        <div className="p-10 space-y-10">
-                            <div className="w-full bg-black/5 border border-border/50 rounded-[32px] overflow-hidden shadow-2xl group/prev relative aspect-video flex items-center justify-center">
+                        <div className="p-6 space-y-6">
+                            <div className="max-w-sm mx-auto bg-black/5 border border-border/50 rounded-[40px] overflow-hidden shadow-xl group/prev relative aspect-video flex items-center justify-center">
                                 <img
                                     src={getImageUrl(selectedProgram.file_image || selectedProgram.url_image)}
                                     alt={selectedProgram.title}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover/prev:scale-[1.02]"
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover/prev:scale-[1.05]"
                                     onError={(e) => {
                                         e.currentTarget.src = '/placeholder.svg';
                                     }}
                                 />
-                                <div className="absolute top-6 right-6">
-                                    <Badge className="bg-white/90 backdrop-blur shadow-xl text-primary border-none rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest">Active Status</Badge>
+                                <div className="absolute top-4 right-4">
+                                    <Badge className="bg-white/90 backdrop-blur shadow-lg text-primary border-none rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest">Active Status</Badge>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 space-y-2">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Sparkles className="w-4 h-4 text-primary" />
                                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Execution Domain</h4>
                                     </div>
                                     <p className="font-black text-foreground tracking-tight text-xl italic">{selectedProgram.title}</p>
                                 </div>
-                                <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 space-y-2">
+                                <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 space-y-2">
                                     <div className="flex items-center gap-2 mb-2">
                                         <ScrollText className="w-4 h-4 text-primary" />
                                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Registry Ref</h4>
                                     </div>
-                                    <p className="font-mono text-xs font-bold text-muted-foreground uppercase tracking-widest">PROG_ID_{selectedProgram.id}</p>
+                                    <p className="font-mono text-xs font-bold text-muted-foreground uppercase tracking-widest">PROG_ID_{selectedProgram.id || selectedProgram._id}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 pl-2">Strategy Manifesto</h4>
-                                <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-lg leading-relaxed relative quote-mask">
+                                <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-lg leading-relaxed relative quote-mask">
                                     "{selectedProgram.description || "Strategy briefing pending documentation."}"
                                 </div>
                             </div>

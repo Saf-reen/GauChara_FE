@@ -118,15 +118,16 @@ const ManageVolunteers = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Ambassador</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Contact Mesh</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Lifecycle Stage</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Operations</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Ambassador</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Contact Mesh</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Lifecycle Stage</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Operations</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {volunteers.length === 0 ? (
                                 <TableRow>
@@ -190,20 +191,21 @@ const ManageVolunteers = () => {
                                 ))
                             )}
                         </TableBody>
-                    </Table>
+                        </Table>
+                    </div>
                 )}
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-[40px] border-none shadow-2xl p-0 overflow-hidden">
-                    <DialogHeader className="bg-primary/5 p-12 pb-8 border-b border-primary/10">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
+                    <DialogHeader className="bg-primary/5 p-6 pb-2 border-b border-primary/10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-primary/10 rounded-2xl">
                                 <UserCheck className="w-8 h-8 text-primary" />
                             </div>
                             <div>
-                                <DialogTitle className="text-3xl font-black italic tracking-tighter">Candidate Profile</DialogTitle>
-                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-6">
+                                <DialogTitle className="text-3xl font-black italic tracking-tighter text-primary">Candidate Profile</DialogTitle>
+                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-4">
                                     Deep-dive analysis of volunteer credentials.
                                 </DialogDescription>
                             </div>
@@ -211,13 +213,13 @@ const ManageVolunteers = () => {
                     </DialogHeader>
 
                     {selectedVolunteer && (
-                        <div className="p-10 space-y-12">
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 <div className="space-y-1">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Candidate Name</h4>
-                                    <p className="font-black text-foreground tracking-tight text-xl">{selectedVolunteer.full_name}</p>
+                                    <p className="font-black text-foreground tracking-tight text-xl truncate max-w-full">{selectedVolunteer.full_name}</p>
                                 </div>
-                                <div className="space-y-1">
+                                <div className="space-y-1 md:text-right lg:text-left">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Stage</h4>
                                     <Badge className={`rounded-xl px-3 py-1 font-black text-[10px] uppercase tracking-widest border-none shadow-sm ${getStatusStyles(selectedVolunteer.status)}`}>
                                         {selectedVolunteer.status || 'Pending'}
@@ -227,10 +229,10 @@ const ManageVolunteers = () => {
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Age Matrix</h4>
                                     <p className="font-black text-foreground tracking-tight">{selectedVolunteer.age || "N/A"}</p>
                                 </div>
-                                <div className="space-y-4 col-span-2 bg-muted/30 p-6 rounded-3xl border border-border/50">
-                                    <div className="flex items-center gap-4">
-                                        <Mail className="w-4 h-4 text-muted-foreground" />
-                                        <a href={`mailto:${selectedVolunteer.email}`} className="font-bold text-foreground hover:text-primary transition-colors">{selectedVolunteer.email}</a>
+                                <div className="space-y-4 col-span-1 md:col-span-2 bg-muted/30 p-6 rounded-3xl border border-border/50">
+                                    <div className="flex items-start gap-4 overflow-hidden">
+                                        <Mail className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
+                                        <a href={`mailto:${selectedVolunteer.email}`} className="font-bold text-foreground hover:text-primary transition-colors break-all whitespace-normal">{selectedVolunteer.email}</a>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <Phone className="w-4 h-4 text-muted-foreground" />
@@ -253,19 +255,19 @@ const ManageVolunteers = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-10">
+                            <div className="space-y-6">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3 pl-2">
                                         <Sparkles className="w-4 h-4 text-primary" />
                                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Competency & Assets</h4>
                                     </div>
-                                    <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-sm leading-relaxed">
+                                    <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-sm leading-relaxed">
                                         {selectedVolunteer.skills || "Candidate has not listed specific skill-sets."}
                                     </div>
                                 </div>
                                 <div className="space-y-4">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 pl-2">Mission Rationale</h4>
-                                    <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-sm leading-relaxed relative quote-mask">
+                                    <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-sm leading-relaxed relative quote-mask">
                                         "{selectedVolunteer.reason || "Manifesto pending."}"
                                     </div>
                                 </div>

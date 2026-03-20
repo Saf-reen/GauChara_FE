@@ -180,8 +180,8 @@ const GalleryEditor = () => {
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 p-8">
-            <div className="max-w-3xl mx-auto">
+        <div className="min-h-screen bg-muted/30 p-4 md:p-8">
+            <div className="max-w-5xl mx-auto">
                 <div className="flex items-center gap-4 mb-8">
                     <Button variant="outline" size="icon" asChild>
                         <Link to="/admin/gallery">
@@ -196,7 +196,7 @@ const GalleryEditor = () => {
                     </div>
                 </div>
 
-                <div className="bg-background rounded-xl border shadow-sm p-8">
+                <div className="bg-background rounded-[40px] border border-border/50 shadow-sm p-4 md:p-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Image Upload */}
                         {/* Image Upload */}

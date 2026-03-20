@@ -176,8 +176,8 @@ const CauseEditor = () => {
     }
 
     return (
-        <div className="min-h-screen bg-muted/30 p-8">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-muted/30 p-4 md:p-8">
+            <div className="max-w-5xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
                         <Button variant="outline" size="icon" asChild>
@@ -191,7 +191,7 @@ const CauseEditor = () => {
                     </div>
                 </div>
 
-                <div className="bg-background rounded-xl border shadow-sm p-6">
+                <div className="bg-background rounded-[40px] border border-border/50 shadow-sm p-4 md:p-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">

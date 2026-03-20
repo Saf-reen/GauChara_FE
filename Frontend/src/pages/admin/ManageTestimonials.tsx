@@ -91,15 +91,16 @@ const ManageTestimonials = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Endorser</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Designation</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Sentimental Rating</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Governance</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Endorser</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Designation</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Sentimental Rating</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Governance</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {testimonials.length === 0 ? (
                                 <TableRow>
@@ -173,20 +174,21 @@ const ManageTestimonials = () => {
                                 ))
                             )}
                         </TableBody>
-                    </Table>
+                        </Table>
+                    </div>
                 )}
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-[40px] border-none shadow-2xl p-0 overflow-hidden">
-                    <DialogHeader className="bg-amber-500/5 p-12 pb-8 border-b border-amber-500/10">
+                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
+                    <DialogHeader className="bg-amber-500/5 p-6 pb-2 border-b border-amber-500/10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-600">
                                 <MessageSquareQuote className="w-8 h-8" />
                             </div>
                             <div>
-                                <DialogTitle className="text-3xl font-black italic tracking-tighter">Endorsement Brief</DialogTitle>
-                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-6">
+                                <DialogTitle className="text-3xl font-black italic tracking-tighter text-amber-600">Endorsement Brief</DialogTitle>
+                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-4">
                                     Official stakeholder sentiment verification.
                                 </DialogDescription>
                             </div>
@@ -194,9 +196,9 @@ const ManageTestimonials = () => {
                     </DialogHeader>
 
                     {selectedTestimonial && (
-                        <div className="p-10 space-y-12">
-                            <div className="flex items-center gap-8">
-                                <div className="w-24 h-24 rounded-[32px] overflow-hidden bg-muted shadow-2xl border-4 border-white shrink-0 relative group">
+                        <div className="p-6 space-y-6">
+                            <div className="flex items-center gap-6">
+                                <div className="w-20 h-20 rounded-[32px] overflow-hidden bg-muted shadow-2xl border-4 border-white shrink-0 relative group">
                                     <img
                                         src={getImageUrl(selectedTestimonial.image) || '/placeholder.svg'}
                                         alt={selectedTestimonial.name}
@@ -226,7 +228,7 @@ const ManageTestimonials = () => {
                                     <Quote className="w-3 h-3 text-amber-500/40" />
                                     Endorsement Transcript
                                 </h4>
-                                <div className="p-10 bg-muted/40 rounded-[40px] border border-border/50 relative overflow-hidden group">
+                                <div className="p-6 bg-muted/40 rounded-[40px] border border-border/50 relative overflow-hidden group">
                                     <div className="absolute top-0 left-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                                         <Star className="w-24 h-24 text-amber-500" />
                                     </div>

@@ -149,7 +149,7 @@ const AdminLayout = ({ children, title = "Admin Dashboard" }: AdminLayoutProps) 
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 lg:ml-64 flex flex-col min-h-screen w-full">
+            <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
                 {/* Sticky Top Navbar */}
                 <header className="h-20 bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-4">

@@ -103,15 +103,16 @@ const ManageContacts = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Stakeholder</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Digital Address</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Intelligence Topic</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Operations</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Stakeholder</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Digital Address</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Intelligence Topic</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Operations</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {contacts.length === 0 ? (
                                 <TableRow>
@@ -167,20 +168,21 @@ const ManageContacts = () => {
                                 ))
                             )}
                         </TableBody>
-                    </Table>
+                        </Table>
+                    </div>
                 )}
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-[40px] border-none shadow-2xl p-0 overflow-hidden">
-                    <DialogHeader className="bg-primary/5 p-12 pb-8 border-b border-primary/10">
+                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
+                    <DialogHeader className="bg-primary/5 p-6 pb-2 border-b border-primary/10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-primary/10 rounded-2xl">
                                 <MessageCircle className="w-8 h-8 text-primary" />
                             </div>
                             <div>
-                                <DialogTitle className="text-3xl font-black italic tracking-tighter">Inquiry Brief</DialogTitle>
-                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-6">
+                                <DialogTitle className="text-3xl font-black italic tracking-tighter text-primary">Inquiry Brief</DialogTitle>
+                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-4">
                                     Strategic communication analysis.
                                 </DialogDescription>
                             </div>
@@ -188,20 +190,20 @@ const ManageContacts = () => {
                     </DialogHeader>
 
                     {selectedContact && (
-                        <div className="p-10 space-y-10">
-                            <div className="grid grid-cols-2 gap-8">
+                        <div className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Stakeholder</h4>
                                     <p className="font-black text-foreground tracking-tight text-xl italic">{selectedContact.name}</p>
                                 </div>
-                                <div className="space-y-1 text-right">
+                                <div className="space-y-1 md:text-right">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Subject Core</h4>
-                                    <p className="font-bold text-primary uppercase tracking-widest text-[10px] bg-primary/5 px-3 py-1.5 rounded-full inline-block">{selectedContact.subject}</p>
+                                    <p className="font-bold text-primary uppercase tracking-widest text-[10px] bg-primary/5 px-3 py-1.5 rounded-full inline-block truncate max-w-full">{selectedContact.subject}</p>
                                 </div>
-                                <div className="space-y-4 col-span-2 bg-muted/30 p-6 rounded-3xl border border-border/50">
-                                    <div className="flex items-center gap-4">
-                                        <Mail className="w-4 h-4 text-muted-foreground" />
-                                        <a href={`mailto:${selectedContact.email}`} className="font-bold text-foreground hover:text-primary transition-colors">{selectedContact.email}</a>
+                                <div className="space-y-4 col-span-1 md:col-span-2 bg-muted/30 p-6 rounded-3xl border border-border/50">
+                                    <div className="flex items-start gap-4 overflow-hidden">
+                                        <Mail className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
+                                        <a href={`mailto:${selectedContact.email}`} className="font-bold text-foreground hover:text-primary transition-colors break-all whitespace-normal">{selectedContact.email}</a>
                                     </div>
                                     {selectedContact.phone && (
                                         <div className="flex items-center gap-4">
@@ -214,7 +216,7 @@ const ManageContacts = () => {
 
                             <div className="space-y-4">
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 pl-2">Intelligence Content</h4>
-                                <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-lg leading-relaxed relative quote-mask">
+                                <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-lg leading-relaxed relative quote-mask">
                                     "{selectedContact.message}"
                                 </div>
                             </div>

@@ -108,17 +108,18 @@ const ManageDonations = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Donor Integrity</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Contribution</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Geographic</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Proof of Seva</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Verification</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Portal</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Donor Integrity</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Contribution</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Geographic</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Proof of Seva</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Verification</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Portal</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {donations.length === 0 ? (
                                 <TableRow>
@@ -183,13 +184,14 @@ const ManageDonations = () => {
                                 ))
                             )}
                         </TableBody>
-                    </Table>
+                        </Table>
+                    </div>
                 )}
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
                 <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
-                    <DialogHeader className="bg-primary/5 p-8 pb-2 border-b border-primary/10">
+                    <DialogHeader className="bg-primary/5 p-6 pb-2 border-b border-primary/10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-primary/10 rounded-2xl">
                                 <HeartHandshake className="w-8 h-8 text-primary" />
@@ -204,8 +206,8 @@ const ManageDonations = () => {
                     </DialogHeader>
 
                     {selectedDonation && (
-                        <div className="p-8 space-y-8">
-                            <div className="grid grid-cols-2 gap-8">
+                        <div className="p-6 space-y-6">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-1">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Entity Name</h4>
                                     <p className="font-black text-foreground tracking-tight">{selectedDonation.full_name}</p>
@@ -224,8 +226,8 @@ const ManageDonations = () => {
                                 </div>
                             </div>
 
-                            <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 space-y-6 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 space-y-6 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
                                     <CreditCard className="w-24 h-24" />
                                 </div>
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Financial Ledger Audit</h4>
@@ -260,7 +262,7 @@ const ManageDonations = () => {
                                             </a>
                                         </Button>
                                     </div>
-                                    <div className="w-full bg-muted/20 border border-border/50 rounded-[28px] overflow-hidden shadow-inner group/img relative cursor-zoom-in">
+                                    <div className="max-w-md mx-auto bg-muted/20 border border-border/50 rounded-[40px] overflow-hidden shadow-inner group/img relative cursor-zoom-in">
                                         <img 
                                             src={getImageUrl(selectedDonation.uploaded_receipt)} 
                                             alt="Forensic Evidence" 

@@ -91,16 +91,17 @@ const ManageCauses = () => {
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
-                                <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16">Cause / Mission</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Domain</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Financial Goal</TableHead>
-                                <TableHead className="font-black uppercase text-[10px] tracking-widest h-16">Priority</TableHead>
-                                <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16">Governance</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                    <div className="overflow-x-auto thin-scroll">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-border/50 hover:bg-transparent px-6 text-foreground">
+                                    <TableHead className="pl-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Cause / Mission</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Domain</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Financial Goal</TableHead>
+                                    <TableHead className="font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Priority</TableHead>
+                                    <TableHead className="text-right pr-10 font-black uppercase text-[10px] tracking-widest h-16 text-foreground">Governance</TableHead>
+                                </TableRow>
+                            </TableHeader>
                         <TableBody>
                             {causes.length === 0 ? (
                                 <TableRow>
@@ -181,30 +182,34 @@ const ManageCauses = () => {
                                 ))
                             )}
                         </TableBody>
-                    </Table>
+                        </Table>
+                    </div>
                 )}
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] border-none shadow-2xl p-0">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
                     {selectedCause && (
                         <div className="space-y-0">
-                            <div className="relative aspect-video w-full">
-                                <img
-                                    src={getImageUrl(selectedCause.image_file || selectedCause.image || selectedCause.image_url) || '/placeholder.svg'}
-                                    alt={selectedCause.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-12">
-                                    <div className="space-y-4">
+                            <div className="bg-primary/5 p-6 border-b border-primary/10">
+                                <div className="max-w-sm mx-auto bg-black/5 border border-border/50 rounded-[40px] overflow-hidden shadow-2xl group/prev relative aspect-video flex items-center justify-center">
+                                    <img
+                                        src={getImageUrl(selectedCause.image_file || selectedCause.image || selectedCause.image_url) || '/placeholder.svg'}
+                                        alt={selectedCause.title}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/prev:scale-[1.05]"
+                                    />
+                                    <div className="absolute top-4 right-4">
                                         <Badge className="bg-rose-500 hover:bg-rose-500 text-white border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-rose-500/30">Active Mission</Badge>
-                                        <h3 className="text-3xl font-black text-white italic tracking-tight">{selectedCause.title}</h3>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-12 space-y-10">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-border/50">
+                            <div className="p-6 space-y-6">
+                                <div className="flex flex-col gap-2 mb-4">
+                                    <h3 className="text-3xl font-black text-foreground italic tracking-tight">{selectedCause.title}</h3>
+                                    <p className="text-muted-foreground font-medium italic">Strategic Implementation Blueprint</p>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6 border-b border-border/50">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
                                             <Target className="w-6 h-6 text-rose-500" />
@@ -231,7 +236,7 @@ const ManageCauses = () => {
                                 </div>
 
                                 <div className="space-y-10">
-                                    <div className="p-8 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-lg leading-relaxed relative quote-mask">
+                                    <div className="p-6 bg-muted/40 rounded-[32px] border border-border/50 italic text-muted-foreground font-medium text-lg leading-relaxed relative quote-mask">
                                         "{selectedCause.short_description || "No mission brief provided."}"
                                     </div>
                                     <div className="prose prose-stone max-w-none text-foreground font-medium leading-relaxed">
