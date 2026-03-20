@@ -17,7 +17,6 @@ import {
     Grid,
     ChevronRight,
     Search,
-    Bell,
     UserCircle,
     Menu
 } from 'lucide-react';
@@ -97,6 +96,8 @@ const AdminLayout = ({ children, title = "Admin Dashboard" }: AdminLayoutProps) 
     const location = useLocation();
     const [admin, setAdmin] = useState<any>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     useEffect(() => {
         const user = localStorage.getItem('admin_user');
@@ -134,6 +135,10 @@ const AdminLayout = ({ children, title = "Admin Dashboard" }: AdminLayoutProps) 
         { label: 'Donations', path: '/admin/donations', icon: HeartHandshake },
         { label: 'Categories', path: '/admin/categories', icon: Grid },
     ];
+
+    const filteredItems = menuItems.filter(item => 
+        item.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="flex bg-muted/30 min-h-screen">
@@ -177,14 +182,43 @@ const AdminLayout = ({ children, title = "Admin Dashboard" }: AdminLayoutProps) 
                             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                             <input 
                                 type="text" 
-                                placeholder="Quick search..." 
+                                placeholder="Quick search modules..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onFocus={() => setIsSearchFocused(true)}
+                                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                                 className="h-10 w-48 xl:w-64 bg-muted/50 border-none rounded-xl pl-10 text-xs font-medium focus:ring-2 focus:ring-primary/20 transition-all"
                             />
+
+                            {/* Search Results Dropdown */}
+                            {isSearchFocused && searchQuery && (
+                                <div className="absolute top-full left-0 w-full mt-2 bg-background border border-border/50 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="p-2 space-y-1">
+                                        {filteredItems.length > 0 ? (
+                                            filteredItems.map(item => (
+                                                <button
+                                                    key={item.path}
+                                                    onClick={() => {
+                                                        navigate(item.path);
+                                                        setSearchQuery('');
+                                                    }}
+                                                    className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted rounded-xl transition-all group"
+                                                >
+                                                    <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                    <span className="text-xs font-bold text-foreground">{item.label}</span>
+                                                    <ChevronRight className="w-3 h-3 ml-auto text-muted-foreground/30" />
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="px-4 py-8 text-center">
+                                                <Search className="w-8 h-8 text-muted-foreground/20 mx-auto mb-2" />
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">No modules found</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        <button className="relative p-2 text-muted-foreground hover:text-primary transition-colors bg-muted/50 rounded-xl">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-background"></span>
-                        </button>
                     </div>
                 </header>
 
