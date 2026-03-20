@@ -188,15 +188,15 @@ const ManageDonations = () => {
             </div>
 
             <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-[40px] border-none shadow-2xl p-0 overflow-hidden">
-                    <DialogHeader className="bg-primary/5 p-12 pb-8 border-b border-primary/10">
+                <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto thin-scroll rounded-[40px] border-none shadow-2xl p-0">
+                    <DialogHeader className="bg-primary/5 p-8 pb-2 border-b border-primary/10">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-primary/10 rounded-2xl">
                                 <HeartHandshake className="w-8 h-8 text-primary" />
                             </div>
                             <div>
-                                <DialogTitle className="text-3xl font-black italic tracking-tighter">Contribution Brief</DialogTitle>
-                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-6">
+                                <DialogTitle className="text-3xl font-black italic tracking-tighter text-primary">Contribution Brief</DialogTitle>
+                                <DialogDescription className="text-muted-foreground font-medium italic mt-1 pb-4">
                                     Official transaction verification record.
                                 </DialogDescription>
                             </div>
@@ -204,7 +204,7 @@ const ManageDonations = () => {
                     </DialogHeader>
 
                     {selectedDonation && (
-                        <div className="p-10 space-y-10">
+                        <div className="p-8 space-y-8">
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="space-y-1">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Entity Name</h4>

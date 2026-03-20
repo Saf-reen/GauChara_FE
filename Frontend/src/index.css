@@ -228,7 +228,33 @@
     animation: scaleIn 0.4s ease-out forwards;
   }
 
-  /* Custom Sidebar Scrollbar */
+  /* Custom Scrollbars */
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+  }
+
+  .thin-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.2);
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .thin-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.4);
+    background-clip: content-box;
+  }
+
   .sidebar-scroll {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--primary) / 0.3) transparent;
