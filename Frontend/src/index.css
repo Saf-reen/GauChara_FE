@@ -228,6 +228,10 @@
     animation: scaleIn 0.4s ease-out forwards;
   }
 
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
   /* Custom Scrollbars */
   .thin-scroll {
     scrollbar-width: thin;
@@ -318,5 +322,16 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
